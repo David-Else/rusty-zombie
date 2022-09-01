@@ -1,5 +1,6 @@
 use crate::Point2d;
 
+#[derive(Debug)]
 pub struct Hero {
     pub position: Point2d,
 }
@@ -14,6 +15,7 @@ impl Hero {
     }
 
     pub fn keys(&mut self, key: String) {
+        println!("{:?}", key);
         match key.as_str() {
             "k" => {
                 println!("Up");

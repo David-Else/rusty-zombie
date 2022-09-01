@@ -12,7 +12,7 @@ pub struct Point2d {
     pub y: usize,
 }
 
-fn render_screen(screen: Vec<Vec<&str>>) {
+fn render_screen(screen: &Vec<Vec<&str>>) {
     print!("\x1B[2J\x1B[1;1H"); // clear screen
 
     for linevector in screen.iter() {
@@ -40,11 +40,7 @@ fn main() {
     // maybe inefficient https://www.reddit.com/r/rust/comments/fls5v0/can_rust_create_2_dimensional_vector_from_macro/
     let mut screen = vec![vec![" "; width]; height];
 
-    // put characters on the virtual screen
-    screen[hero.position.x][hero.position.y] = "h";
-    screen[zombie.position.x][zombie.position.y] = "z";
-
-    render_screen(screen);
+    render_screen(&screen);
 
     loop {
         println!("Press hjkl to move the hero");
@@ -55,9 +51,12 @@ fn main() {
             .read_line(&mut key)
             .expect("Failed to read line");
 
-        hero.keys(key);
+        hero.keys(key.trim().to_string());
+        // put characters on the virtual screen
+        screen[hero.position.x][hero.position.y] = "h";
+        screen[zombie.position.x][zombie.position.y] = "z";
         // hero.keys(String::from("k"));
-        // render_screen(screen);
+        render_screen(&screen);
     }
 }
 

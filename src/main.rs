@@ -1,7 +1,9 @@
 mod hero;
+mod world;
 mod zombie;
 use hero::Hero;
 use std::io;
+use world::GameState;
 use zombie::Zombie;
 
 // #[...] is an attribute. on Point2d, it generates a Debug trait
@@ -31,9 +33,14 @@ fn main() {
     let width: usize = 15;
     let height: usize = 15;
 
-    // create hero and zombie
+    // create world, hero and zombie
+    // let zombie = Entity::Zombie(Zombie::new(width, height));
+    let mut game_state = GameState::new();
     let zombie = Zombie::new(width, height);
     let mut hero = Hero::new(width, height);
+
+    // push the zombie and hero onto game_state entities vec
+    game_state.entities.push(zombie);
 
     // create 2d array (matrix) as vector to represent the screen
     // " " = empty, "z" = zombie, "h" = hero

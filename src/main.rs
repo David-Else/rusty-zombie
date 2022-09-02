@@ -3,6 +3,7 @@ mod world;
 mod zombie;
 use hero::Hero;
 use std::io;
+use world::Entity;
 use world::GameState;
 use zombie::Zombie;
 
@@ -15,7 +16,7 @@ pub struct Point2d {
 }
 
 fn render_screen(screen: &Vec<Vec<&str>>) {
-    print!("\x1B[2J\x1B[1;1H"); // clear screen
+    // print!("\x1B[2J\x1B[1;1H"); // clear screen
 
     for linevector in screen.iter() {
         // other way to do it, debug means no blank spaces
@@ -36,12 +37,18 @@ fn main() {
     // create world, hero and zombie
     // let zombie = Entity::Zombie(Zombie::new(width, height));
     let mut game_state = GameState::new();
-    let zombie = Zombie::new(width, height);
+
+    let ze = Option::Some(Entity::Zombie(Zombie::new(width, height)));
     let mut hero = Hero::new(width, height);
 
+    println!("{:?}", ze);
     // push the zombie and hero onto game_state entities vec
-    game_state.entities.push(zombie);
+    game_state.entities.push(ze);
 
+    //get a the zombie back out so we can get its position...
+    let z = game_state.entities.first().unwrap();
+
+    println!("{:?}", z);
     // create 2d array (matrix) as vector to represent the screen
     // " " = empty, "z" = zombie, "h" = hero
     // maybe inefficient https://www.reddit.com/r/rust/comments/fls5v0/can_rust_create_2_dimensional_vector_from_macro/
@@ -61,7 +68,8 @@ fn main() {
         hero.keys(key.trim().to_string());
         // put characters on the virtual screen
         screen[hero.position.x][hero.position.y] = "h";
-        screen[zombie.position.x][zombie.position.y] = "z";
+        // screen[zombie.position.x][zombie.position.y] = "z";
+        // screen[z.position.x][z.position.y] = "z";
         // hero.keys(String::from("k"));
         render_screen(&screen);
     }

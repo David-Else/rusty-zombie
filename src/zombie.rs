@@ -1,6 +1,7 @@
 use crate::Point2d;
 use rand::{thread_rng, Rng};
 
+#[derive(Debug)]
 pub struct Zombie {
     pub position: Point2d,
 }

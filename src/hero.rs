@@ -12,9 +12,8 @@ impl Hero {
         Self { position, image }
     }
 
-    pub fn keys(&mut self, key: String) {
-        println!("{:?}", key);
-        match key.as_str() {
+    pub fn update(&mut self, key: &str) {
+        match key {
             // goes out of range and crashes
             "k" => self.position.x += 1,
             "j" => self.position.x -= 1,

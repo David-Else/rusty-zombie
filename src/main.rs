@@ -25,7 +25,7 @@ fn main() {
             .read_line(&mut key)
             .expect("Failed to read line");
 
-        game_state.heroes[0].keys(key.trim().to_string());
+        game_state.update(key.trim());
         game_state.render_screen();
     }
 }

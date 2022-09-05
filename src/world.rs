@@ -3,7 +3,7 @@ use crate::{hero::Hero, zombie::Zombie};
 
 pub struct GameState {
     zombies: Vec<Zombie>,
-    pub heroes: Vec<Hero>,
+    heroes: Vec<Hero>,
     screen: Vec<Vec<char>>,
 }
 
@@ -26,6 +26,15 @@ impl GameState {
     pub fn add_zombie(&mut self, image: char) {
         let zombie = Zombie::new(16, 16, image);
         self.zombies.push(zombie); // temp stop compiler moaning
+    }
+    pub fn update(&mut self, key: &str) {
+        // for zombie in self.zombies.iter() {
+        //     zombie.update();
+        // }
+        // for hero in self.heroes.iter() {
+        //     hero.update(key);
+        // }
+        self.heroes[0].update(key);
     }
     pub fn render_screen(&mut self) {
         print!("\x1B[2J\x1B[1;1H"); // clear screen

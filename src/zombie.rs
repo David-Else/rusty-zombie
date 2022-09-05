@@ -4,15 +4,16 @@ use rand::{thread_rng, Rng};
 #[derive(Debug)]
 pub struct Zombie {
     pub position: Point2d,
+    image: char,
 }
 
 impl Zombie {
     // associated (static) function, used as constructor
-    pub fn new(width: usize, height: usize) -> Self {
+    pub fn new(max_width: usize, max_height: usize, image: char) -> Self {
         let position = Point2d {
-            x: thread_rng().gen_range(0..width),
-            y: thread_rng().gen_range(0..height),
+            x: thread_rng().gen_range(0..max_width),
+            y: thread_rng().gen_range(0..max_height),
         };
-        Self { position }
+        Self { position, image }
     }
 }

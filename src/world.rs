@@ -24,19 +24,27 @@ impl GameState {
             screen,
         }
     }
+    // adds hero to the middle of the screen
     pub fn add_hero(&mut self, image: char) {
-        let hero = Hero::new(
+        self.heroes.push(Hero::new(
             Point2d {
                 x: self.screen.len() / 2,
                 y: self.screen[0].len() / 2,
             },
             image,
-        );
-        self.heroes.push(hero);
+        ));
     }
-    pub fn add_zombie(&mut self, image: char) {
-        let zombie = Zombie::new(Point2d { x: 16, y: 16 }, image);
-        self.zombies.push(zombie);
+    // adds specified number of zombies to random positions
+    pub fn add_zombies(&mut self, no: i32, image: char) {
+        for x in 0..no {
+            self.zombies.push(Zombie::new(
+                Point2d {
+                    x: self.screen.len(),
+                    y: self.screen[0].len(),
+                },
+                image,
+            ));
+        }
     }
     pub fn update(&mut self, key: &str) {
         // for zombie in self.zombies.iter() {

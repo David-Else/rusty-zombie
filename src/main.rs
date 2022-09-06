@@ -11,14 +11,14 @@ pub struct Point2d {
 }
 
 fn main() {
-    let screensize = Point2d { x: 16, y: 16 };
+    let screensize = Point2d { x: 32, y: 32 };
     let mut game_state = GameState::new(&screensize);
 
     game_state.add_hero('h');
-    game_state.add_zombie('z');
-    game_state.render_screen();
+    game_state.add_zombies(16, 'z');
 
     loop {
+        game_state.render_screen();
         println!("Press hjkl to move the hero");
 
         let mut key = String::new();
@@ -28,6 +28,5 @@ fn main() {
             .expect("Failed to read line");
 
         game_state.update(key.trim());
-        game_state.render_screen();
     }
 }

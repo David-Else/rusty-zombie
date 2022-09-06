@@ -21,20 +21,19 @@ impl GameState {
     }
     pub fn add_hero(&mut self, x: usize, y: usize, image: char) {
         let hero = Hero::new(x, y, image);
-        self.heroes.push(hero); // temp stop compiler moaning
+        self.heroes.push(hero);
     }
     pub fn add_zombie(&mut self, image: char) {
         let zombie = Zombie::new(16, 16, image);
-        self.zombies.push(zombie); // temp stop compiler moaning
+        self.zombies.push(zombie);
     }
     pub fn update(&mut self, key: &str) {
-        // for zombie in self.zombies.iter() {
-        //     zombie.update();
-        // }
-        // for hero in self.heroes.iter() {
-        //     hero.update(key);
-        // }
-        self.heroes[0].update(key);
+        for zombie in self.zombies.iter() {
+            zombie.update();
+        }
+        for hero in self.heroes.iter_mut() {
+            hero.update(key);
+        }
     }
     pub fn render_screen(&mut self) {
         print!("\x1B[2J\x1B[1;1H"); // clear screen

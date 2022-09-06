@@ -16,4 +16,7 @@ impl Zombie {
         };
         Self { position, image }
     }
+    pub fn update(&self) {
+        println!("I am updating")
+    }
 }

@@ -11,8 +11,10 @@ pub struct Point2d {
 }
 
 fn main() {
-    let mut game_state = GameState::new();
-    game_state.add_hero(7, 7, 'h');
+    let screensize = Point2d { x: 16, y: 16 };
+    let mut game_state = GameState::new(&screensize);
+
+    game_state.add_hero('h');
     game_state.add_zombie('z');
     game_state.render_screen();
 

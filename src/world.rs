@@ -1,4 +1,4 @@
-use crate::{hero::Hero, zombie::Zombie};
+use crate::{hero::Hero, zombie::Zombie, Point2d};
 #[derive(Debug)]
 
 pub struct GameState {
@@ -9,33 +9,39 @@ pub struct GameState {
 
 pub trait Entity {
     fn update(&mut self, key: &str);
-    fn new(x: usize, y: usize, image: char) -> Self;
+    fn new(position: Point2d, image: char) -> Self;
 }
 
 impl GameState {
-    pub fn new() -> Self {
+    pub fn new(screen_size: &Point2d) -> Self {
         let zombies: Vec<Zombie> = vec![];
         let heroes: Vec<Hero> = vec![];
         // create 2d array (matrix) as vector to represent the screen
-        let screen = vec![vec![' '; 16]; 16];
+        let screen = vec![vec![' '; screen_size.x]; screen_size.y];
         Self {
             zombies,
             heroes,
             screen,
         }
     }
-    pub fn add_hero(&mut self, x: usize, y: usize, image: char) {
-        let hero = Hero::new(x, y, image);
+    pub fn add_hero(&mut self, image: char) {
+        let hero = Hero::new(
+            Point2d {
+                x: self.screen.len() / 2,
+                y: self.screen[0].len() / 2,
+            },
+            image,
+        );
         self.heroes.push(hero);
     }
     pub fn add_zombie(&mut self, image: char) {
-        let zombie = Zombie::new(16, 16, image);
+        let zombie = Zombie::new(Point2d { x: 16, y: 16 }, image);
         self.zombies.push(zombie);
     }
     pub fn update(&mut self, key: &str) {
-        for zombie in self.zombies.iter() {
-            zombie.update();
-        }
+        // for zombie in self.zombies.iter() {
+        //     zombie.update();
+        // }
         for hero in self.heroes.iter_mut() {
             hero.update(key);
         }

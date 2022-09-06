@@ -7,8 +7,8 @@ pub struct Hero {
 }
 
 impl Entity for Hero {
-    fn new(x: usize, y: usize, image: char) -> Self {
-        let position = Point2d { x, y };
+    fn new(position: Point2d, image: char) -> Self {
+        // let position = Point2d { x, y };
         Self { position, image }
     }
 

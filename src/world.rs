@@ -7,6 +7,11 @@ pub struct GameState {
     screen: Vec<Vec<char>>,
 }
 
+pub trait Entity {
+    fn update(&mut self, key: &str);
+    fn new(x: usize, y: usize, image: char) -> Self;
+}
+
 impl GameState {
     pub fn new() -> Self {
         let zombies: Vec<Zombie> = vec![];

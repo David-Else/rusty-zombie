@@ -1,4 +1,4 @@
-use crate::Point2d;
+use crate::{world::Entity, Point2d};
 
 #[derive(Debug)]
 pub struct Hero {
@@ -6,13 +6,13 @@ pub struct Hero {
     image: char,
 }
 
-impl Hero {
-    pub fn new(x: usize, y: usize, image: char) -> Self {
+impl Entity for Hero {
+    fn new(x: usize, y: usize, image: char) -> Self {
         let position = Point2d { x, y };
         Self { position, image }
     }
 
-    pub fn update(&mut self, key: &str) {
+    fn update(&mut self, key: &str) {
         match key {
             // goes out of range and crashes
             "k" => self.position.x += 1,

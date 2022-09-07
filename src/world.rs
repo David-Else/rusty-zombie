@@ -36,7 +36,7 @@ impl GameState {
     }
     // adds specified number of zombies to random positions
     pub fn add_zombies(&mut self, no: i32, image: char) {
-        for x in 0..no {
+        for _counter in 0..no {
             self.zombies.push(Zombie::new(
                 Point2d {
                     x: self.screen.len(),
@@ -55,7 +55,7 @@ impl GameState {
         }
     }
     pub fn render_screen(&mut self) {
-        print!("\x1B[2J\x1B[1;1H"); // clear screen
+        // print!("\x1B[2J\x1B[1;1H"); // clear screen
         for zombie in self.zombies.iter() {
             self.screen[zombie.position.x][zombie.position.y] = 'z';
         }

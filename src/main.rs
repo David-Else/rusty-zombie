@@ -5,9 +5,10 @@ use std::io;
 use world::GameState;
 
 #[derive(Debug)]
-pub struct Point2d {
-    pub x: usize,
-    pub y: usize,
+// a position on a grid to be displayed on the terminal
+pub struct Point2d<T> {
+    pub x: T,
+    pub y: T,
 }
 
 fn main() {

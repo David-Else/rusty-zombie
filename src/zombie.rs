@@ -4,27 +4,29 @@ use std::f32::consts::PI;
 
 #[derive(Debug)]
 pub struct Zombie {
-    pub position: Point2d,
+    pub position: Point2d<u8>,
     image: char,
 }
 
-pub fn calculate_random_position_around_point(
-    hero_position: Point2d,
-    screen_width_height: Point2d,
-) -> Point2d {
-    let variation_in_r = 1;
-    let minimum_r = screen_width_height.y / 2; // could be x
-    let theta = thread_rng().gen_range(0..1) as f32 * (2.0 * PI);
-    let r = thread_rng().gen_range(0..1) * variation_in_r + minimum_r;
-    Point2d {
-        x: theta.cos() as usize * r + hero_position.x,
-        y: theta.sin() as usize * r + hero_position.y,
-    }
-}
+// pub fn calculate_random_position_around_point(
+//     hero_position: Point2d,
+//     screen_width_height: Point2d,
+// ) -> Point2d {
+//     let variation_in_r = 1;
+//     let minimum_r = screen_width_height.y / 2; // could be x
+//     let theta: f32 = thread_rng().gen::<f32>() * (2.0 * PI);
+//     let r = thread_rng().gen::<i32>() * variation_in_r + minimum_r as i32;
+//     println!("{:?}", r);
+//     Point2d {
+//         // cos and sin need floating point as well as PI
+//         x: theta.cos() as usize * r + hero_position.x,
+//         y: theta.sin() as usize * r + hero_position.y,
+//     }
+// }
 
 impl Entity for Zombie {
     // associated (static) function, used as constructor
-    fn new(screen_size: Point2d, image: char) -> Self {
+    fn new(screen_size: Point2d<u8>, image: char) -> Self {
         let random_position = Point2d {
             x: thread_rng().gen_range(0..screen_size.x),
             y: thread_rng().gen_range(0..screen_size.y),
@@ -43,16 +45,18 @@ impl Entity for Zombie {
         //     Math.sin(theta) * r + centrePoint[1],
         //   ];
         // };
-        let rando = calculate_random_position_around_point(
-            Point2d {
-                x: screen_size.x / 2,
-                y: screen_size.y / 2,
-            },
-            screen_size,
-        );
-        println!("NEW ALGO {:?}", rando);
-        println!("OLD ALGO {:?}", random_position);
-        // ---------------------------------------
+
+        // let rando = calculate_random_position_around_point(
+        //     Point2d {
+        //         x: screen_size.x / 2,
+        //         y: screen_size.y / 2,
+        //     },
+        //     screen_size,
+        // );
+
+        // println!("NEW ALGO {:?}", rando);
+        // println!("OLD ALGO {:?}", random_position);
+        // // ---------------------------------------
         Self {
             position: random_position,
             image,

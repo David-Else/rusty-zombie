@@ -30,6 +30,19 @@ impl Entity for Zombie {
             y: thread_rng().gen_range(0..screen_size.y),
         };
         // --- TEST --- WHY does this not work?
+        // export const calculateRandomPositionAroundPoint: VectorFn = (
+        //   centrePoint,
+        //   screenWidthHeight
+        // ) => {
+        //   const variationInR = 1;
+        //   const minimumR = screenWidthHeight[1] / 2; // TODO add size of entity make always on screen
+        //   const theta = Math.random() * (2 * Math.PI);
+        //   const r = Math.random() * variationInR + minimumR;
+        //   return [
+        //     Math.cos(theta) * r + centrePoint[0],
+        //     Math.sin(theta) * r + centrePoint[1],
+        //   ];
+        // };
         let rando = calculate_random_position_around_point(
             Point2d {
                 x: screen_size.x / 2,
@@ -50,17 +63,3 @@ impl Entity for Zombie {
         println!("I am updating")
     }
 }
-
-// export const calculateRandomPositionAroundPoint: VectorFn = (
-//   centrePoint,
-//   screenWidthHeight
-// ) => {
-//   const variationInR = 1;
-//   const minimumR = screenWidthHeight[1] / 2; // TODO add size of entity make always on screen
-//   const theta = Math.random() * (2 * Math.PI);
-//   const r = Math.random() * variationInR + minimumR;
-//   return [
-//     Math.cos(theta) * r + centrePoint[0],
-//     Math.sin(theta) * r + centrePoint[1],
-//   ];
-// };

@@ -27,9 +27,9 @@ impl GameState {
             screen,
         }
     }
+
     // adds hero to the middle of the screen
     pub fn add_hero(&mut self, image: char) {
-        // self.screen[0].push('j');
         self.heroes.push(Hero::new(
             Point2d {
                 x: self.screen.len() / 2,
@@ -38,6 +38,7 @@ impl GameState {
             image,
         ));
     }
+
     // adds specified number of zombies to random positions
     pub fn add_zombies(&mut self, no: i32, image: char) {
         for _counter in 0..no {
@@ -50,10 +51,8 @@ impl GameState {
             ));
         }
     }
+
     pub fn update(&mut self, key: &str) {
-        // for zombie in self.zombies.iter() {
-        //     zombie.update();
-        // }
         // https://www.reddit.com/r/learnrust/comments/x76d3o/how_do_i_iterate_over_a_vector_with_a_for_in_loop/
         for hero in &mut self.heroes {
             hero.update(key);
@@ -69,13 +68,13 @@ impl GameState {
     }
 
     pub fn render_screen(&mut self) {
-        // reset screen
+        // reset date on screen screen, best way to do it? repeating new = duplication
         self.screen = vec![vec![' '; self.screen_width()]; self.screen_height()];
 
         const BORDER_CHAR: char = '.';
         let border_width = self.screen[0].len() + 2;
 
-        print!("\x1B[2J\x1B[1;1H"); // clear screen
+        print!("\x1B[2J\x1B[1;1H"); // clear terminal screen
         for zombie in self.zombies.iter() {
             self.screen[zombie.position.x as usize][zombie.position.y as usize] = 'z';
         }

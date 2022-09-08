@@ -8,13 +8,12 @@ pub struct Hero {
 
 impl Entity for Hero {
     fn new(position: Point2d, image: char) -> Self {
-        // let position = Point2d { x, y };
         Self { position, image }
     }
 
     fn update(&mut self, key: &str) {
         match key {
-            // goes out of range and crashes
+            // this method needs to know width and height to prevent it going out of range
             "k" => self.position.x += 1,
             "j" => self.position.x -= 1,
             "l" => self.position.y += 1,

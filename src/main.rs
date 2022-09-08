@@ -6,9 +6,9 @@ use world::GameState;
 
 #[derive(Debug)]
 // a position on a grid to be displayed on the terminal
-pub struct Point2d<T> {
-    pub x: T,
-    pub y: T,
+pub struct Point2d {
+    pub x: usize,
+    pub y: usize,
 }
 
 fn main() {
@@ -16,7 +16,7 @@ fn main() {
     let mut game_state = GameState::new(&screensize);
 
     game_state.add_hero('h');
-    game_state.add_zombies(16, 'z');
+    game_state.add_zombies(32, 'z');
 
     loop {
         game_state.render_screen();

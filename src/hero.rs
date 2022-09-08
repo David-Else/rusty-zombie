@@ -2,12 +2,12 @@ use crate::{world::Entity, Point2d};
 
 #[derive(Debug)]
 pub struct Hero {
-    pub position: Point2d<u8>,
+    pub position: Point2d,
     image: char,
 }
 
 impl Entity for Hero {
-    fn new(position: Point2d<u8>, image: char) -> Self {
+    fn new(position: Point2d, image: char) -> Self {
         // let position = Point2d { x, y };
         Self { position, image }
     }

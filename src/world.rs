@@ -9,11 +9,11 @@ pub struct GameState {
 
 pub trait Entity {
     fn update(&mut self, key: &str);
-    fn new(position: Point2d<u8>, image: char) -> Self;
+    fn new(position: Point2d, image: char) -> Self;
 }
 
 impl GameState {
-    pub fn new(screen_size: &Point2d<u8>) -> Self {
+    pub fn new(screen_size: &Point2d) -> Self {
         let zombies: Vec<Zombie> = vec![];
         let heroes: Vec<Hero> = vec![];
         // create 2d array (matrix) as vector to represent the screen
@@ -35,8 +35,8 @@ impl GameState {
     pub fn add_hero(&mut self, image: char) {
         self.heroes.push(Hero::new(
             Point2d {
-                x: self.screen.len() as u8 / 2,
-                y: self.screen[0].len() as u8 / 2,
+                x: self.screen.len() / 2,
+                y: self.screen[0].len() / 2,
             },
             image,
         ));
@@ -46,8 +46,8 @@ impl GameState {
         for _counter in 0..no {
             self.zombies.push(Zombie::new(
                 Point2d {
-                    x: self.screen.len() as u8,
-                    y: self.screen[0].len() as u8,
+                    x: self.screen.len(),
+                    y: self.screen[0].len(),
                 },
                 image,
             ));

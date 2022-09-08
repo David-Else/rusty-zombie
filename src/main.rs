@@ -16,7 +16,7 @@ fn main() {
     let mut game_state = GameState::new(&screensize);
 
     game_state.add_hero('h');
-    game_state.add_zombies(32, 'z');
+    game_state.add_zombies(64, 'z');
 
     loop {
         game_state.render_screen();

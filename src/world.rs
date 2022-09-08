@@ -21,8 +21,6 @@ impl GameState {
         let zombies: Vec<Zombie> = vec![];
         let heroes: Vec<Hero> = vec![];
         let screen = vec![vec![' '; width]; height];
-        println!("{:?}", screen[0]);
-        // screen.insert(0, 'f');
         Self {
             zombies,
             heroes,
@@ -69,6 +67,9 @@ impl GameState {
         }
     }
     pub fn render_screen(&mut self) {
+        // reset screen
+        self.screen = vec![vec![' '; self.screen.len()]; self.screen[0].len()];
+
         const BORDER_CHAR: char = '.';
         let border_width = self.screen[0].len() + 2;
 

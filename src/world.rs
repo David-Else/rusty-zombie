@@ -27,13 +27,6 @@ impl GameState {
             screen,
         }
     }
-    // get array size in usize for indexing
-    // pub fn screen_dimensions(&self) {
-    //     return Point2d {
-    //         x: self.screen.len() as usize,
-    //         y: self.screen[0].len() as usize,
-    //     };
-    // }
     // adds hero to the middle of the screen
     pub fn add_hero(&mut self, image: char) {
         // self.screen[0].push('j');
@@ -66,9 +59,18 @@ impl GameState {
             hero.update(key);
         }
     }
+
+    pub fn screen_width(&mut self) -> usize {
+        self.screen.len()
+    }
+
+    pub fn screen_height(&mut self) -> usize {
+        self.screen[0].len()
+    }
+
     pub fn render_screen(&mut self) {
         // reset screen
-        self.screen = vec![vec![' '; self.screen.len()]; self.screen[0].len()];
+        self.screen = vec![vec![' '; self.screen_width()]; self.screen_height()];
 
         const BORDER_CHAR: char = '.';
         let border_width = self.screen[0].len() + 2;

@@ -4,7 +4,7 @@ mod zombie;
 use crossterm::{
     cursor::{Hide, Show},
     event::{self, Event, KeyCode},
-    terminal::{self, EnterAlternateScreen, LeaveAlternateScreen},
+    terminal::{self, EnterAlternateScreen, LeaveAlternateScreen, SetSize},
     ExecutableCommand,
 };
 use std::{error::Error, io, time::Duration};
@@ -20,10 +20,15 @@ pub struct Point2d {
 fn main() -> Result<(), Box<dyn Error>> {
     // terminal
     let mut stdout = io::stdout();
-    terminal::enable_raw_mode()?;
+    //terminal::enable_raw_mode()?;
     stdout.execute(EnterAlternateScreen)?;
     stdout.execute(Hide)?;
-
+    // stdout.execute(SetSize(32, 32))?;
+    let (number_cols, number_rows) = terminal::size()?;
+    // let screensize = Point2d {
+    //     x: number_cols as usize,
+    //     y: number_rows as usize,
+    // };
     let screensize = Point2d { x: 32, y: 32 };
     let mut game_state = GameState::new(&screensize);
 
@@ -31,6 +36,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     game_state.add_zombies(64, 'z');
 
     game_state.render_screen();
+    println!("{:?},{:?}", number_cols, number_rows);
 
     //Game loop
     'gameloop: loop {

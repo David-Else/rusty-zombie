@@ -14,10 +14,10 @@ impl Entity for Hero {
     fn update(&mut self, key: &str) {
         match key {
             // this method needs to know width and height to prevent it going out of range
-            "k" => self.position.x += 1,
-            "j" => self.position.x -= 1,
-            "l" => self.position.y += 1,
-            "h" => self.position.y -= 1,
+            "k" => self.position.y -= 1,
+            "j" => self.position.y += 1,
+            "l" => self.position.x += 1,
+            "h" => self.position.x -= 1,
             _ => {
                 println!("Not compatible key!");
             }

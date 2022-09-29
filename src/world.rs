@@ -1,4 +1,10 @@
 use crate::{hero::Hero, zombie::Zombie, Point2d};
+use crossterm::{
+    cursor,
+    style::{self, Stylize},
+    terminal, ExecutableCommand, QueueableCommand, Result,
+};
+use std::io::{stdout, Stdout, Write};
 #[derive(Debug)]
 
 pub struct GameState {
@@ -40,12 +46,12 @@ impl GameState {
     }
 
     // adds specified number of zombies to random positions
-    pub fn add_zombies(&mut self, no: i32, image: char) {
+    pub fn add_zombies(&mut self, no: i32, image: char, number_cols: usize, number_rows: usize) {
         for _counter in 0..no {
             self.zombies.push(Zombie::new(
                 Point2d {
-                    x: self.screen.len(),
-                    y: self.screen[0].len(),
+                    x: number_cols,
+                    y: number_rows,
                 },
                 image,
             ));
@@ -67,37 +73,41 @@ impl GameState {
         self.screen[0].len()
     }
 
-    pub fn render_screen(&mut self) {
-        // reset date on screen screen, best way to do it? repeating new = duplication
-        self.screen = vec![vec![' '; self.screen_width()]; self.screen_height()];
+    pub fn render_screen(&mut self, mut stdout: &Stdout) -> Result<()> {
+        // let mut stdout = stdout();
+        stdout.execute(terminal::Clear(terminal::ClearType::All))?;
 
-        const BORDER_CHAR: char = '.';
-        let border_width = self.screen[0].len() + 2;
+        for y in 0..self.screen_height() {
+            for x in 0..self.screen_width() {
+                if (y == 0 || y == self.screen_height() - 1)
+                    || (x == 0 || x == self.screen_width() - 1)
+                {
+                    stdout
+                        .queue(cursor::MoveTo(x as u16, y as u16))?
+                        .queue(style::PrintStyledContent("█".grey()))?;
+                }
+            }
+        }
 
-        print!("\x1B[2J\x1B[1;1H"); // clear terminal screen
         for zombie in self.zombies.iter() {
-            self.screen[zombie.position.x as usize][zombie.position.y as usize] = 'z';
+            stdout
+                .queue(cursor::MoveTo(
+                    zombie.position.x as u16,
+                    zombie.position.y as u16,
+                ))?
+                .queue(style::PrintStyledContent("z".green()))?;
         }
+
         for hero in self.heroes.iter() {
-            self.screen[hero.position.x as usize][hero.position.y as usize] = 'h';
+            stdout
+                .queue(cursor::MoveTo(
+                    hero.position.x as u16,
+                    hero.position.y as u16,
+                ))?
+                .queue(style::PrintStyledContent("h".red()))?;
         }
 
-        println!("{}", str::repeat(&BORDER_CHAR.to_string(), border_width));
-        for linevector in self.screen.iter() {
-            println!(
-                "{BORDER_CHAR}{}{BORDER_CHAR}",
-                linevector.iter().collect::<String>()
-            );
-        }
-        println!("{}", str::repeat(&BORDER_CHAR.to_string(), border_width));
-
-        // for linevector in self.screen.iter() {
-        //     // other way to do it, debug means no blank spaces
-        //     // println!("{:?}", linevector)
-        //     for column in linevector.iter() {
-        //         print!("{}", column)
-        //     }
-        //     println!();
-        // }
+        stdout.flush()?;
+        Ok(())
     }
 }

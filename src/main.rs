@@ -4,7 +4,7 @@ mod zombie;
 use crossterm::{
     cursor::{Hide, Show},
     event::{self, Event, KeyCode},
-    terminal::{self, EnterAlternateScreen, LeaveAlternateScreen, SetSize},
+    terminal::{self, EnterAlternateScreen, LeaveAlternateScreen},
     ExecutableCommand,
 };
 use std::{error::Error, io, time::Duration};
@@ -20,40 +20,45 @@ pub struct Point2d {
 fn main() -> Result<(), Box<dyn Error>> {
     // terminal
     let mut stdout = io::stdout();
-    //terminal::enable_raw_mode()?;
+    terminal::enable_raw_mode()?;
     stdout.execute(EnterAlternateScreen)?;
     stdout.execute(Hide)?;
-    // stdout.execute(SetSize(32, 32))?;
+
     let (number_cols, number_rows) = terminal::size()?;
-    // let screensize = Point2d {
-    //     x: number_cols as usize,
-    //     y: number_rows as usize,
-    // };
-    let screensize = Point2d { x: 32, y: 32 };
+    let screensize = Point2d {
+        x: number_rows as usize,
+        y: number_cols as usize,
+    };
+
     let mut game_state = GameState::new(&screensize);
 
     game_state.add_hero('h');
-    game_state.add_zombies(64, 'z');
+    game_state.add_zombies(64, 'z', number_cols as usize, number_rows as usize);
 
-    game_state.render_screen();
-    println!("{:?},{:?}", number_cols, number_rows);
+    game_state.render_screen(&stdout)?; // Delete, temp way to start with screen
 
     //Game loop
     'gameloop: loop {
         while event::poll(Duration::default())? {
+            game_state.render_screen(&stdout)?;
             if let Event::Key(key_event) = event::read()? {
                 match key_event.code {
                     KeyCode::Esc | KeyCode::Char('q') => {
                         break 'gameloop;
                     }
-                    // KeyCode::Char('l') => {
-                    //     break 'gameloop;
-                    // }
-                    _ => {
-                        // hello
-                        // game_state.update(key_event.code.unwrap());
-                        println!("{:?}", key_event.code)
+                    KeyCode::Char('h') => {
+                        game_state.update("h");
                     }
+                    KeyCode::Char('j') => {
+                        game_state.update("j");
+                    }
+                    KeyCode::Char('k') => {
+                        game_state.update("k");
+                    }
+                    KeyCode::Char('l') => {
+                        game_state.update("l");
+                    }
+                    _ => {}
                 }
             }
         }
@@ -65,17 +70,4 @@ fn main() -> Result<(), Box<dyn Error>> {
     terminal::disable_raw_mode()?;
 
     Ok(())
-
-    // loop {
-    //     game_state.render_screen();
-    //     println!("Press hjkl to move the hero");
-
-    //     let mut key = String::new();
-
-    //     io::stdin()
-    //         .read_line(&mut key)
-    //         .expect("Failed to read line");
-
-    //     game_state.update(key.trim());
-    // }
 }

@@ -4,7 +4,7 @@ use crossterm::{
     style::{self, Stylize},
     terminal, ExecutableCommand, QueueableCommand, Result,
 };
-use std::io::{stdout, Stdout, Write};
+use std::io::{Stdout, Write};
 #[derive(Debug)]
 
 pub struct GameState {
@@ -74,9 +74,8 @@ impl GameState {
     }
 
     pub fn render_screen(&mut self, mut stdout: &Stdout) -> Result<()> {
-        // let mut stdout = stdout();
         stdout.execute(terminal::Clear(terminal::ClearType::All))?;
-
+        // border
         for y in 0..self.screen_height() {
             for x in 0..self.screen_width() {
                 if (y == 0 || y == self.screen_height() - 1)
@@ -88,7 +87,7 @@ impl GameState {
                 }
             }
         }
-
+        // zombies
         for zombie in self.zombies.iter() {
             stdout
                 .queue(cursor::MoveTo(
@@ -97,7 +96,7 @@ impl GameState {
                 ))?
                 .queue(style::PrintStyledContent("z".green()))?;
         }
-
+        // hero
         for hero in self.heroes.iter() {
             stdout
                 .queue(cursor::MoveTo(
@@ -106,7 +105,7 @@ impl GameState {
                 ))?
                 .queue(style::PrintStyledContent("h".red()))?;
         }
-
+        // draw screen from queued buffer
         stdout.flush()?;
         Ok(())
     }

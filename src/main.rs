@@ -18,26 +18,28 @@ pub struct Point2d {
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
-    // terminal
+    // setup terminal
     let mut stdout = io::stdout();
     terminal::enable_raw_mode()?;
     stdout.execute(EnterAlternateScreen)?;
     stdout.execute(Hide)?;
 
+    // get size of terminal
     let (number_cols, number_rows) = terminal::size()?;
     let screensize = Point2d {
         x: number_rows as usize,
         y: number_cols as usize,
     };
 
-    let mut game_state = GameState::new(&screensize);
+    // create game state
+    let mut game_state = GameState::new(screensize);
+    game_state.add_hero();
+    game_state.add_zombies(64);
 
-    game_state.add_hero('h');
-    game_state.add_zombies(64, 'z', number_cols as usize, number_rows as usize);
-
+    // render screen
     game_state.render_screen(&stdout)?; // Delete, temp way to start with screen
 
-    //Game loop
+    // game loop
     'gameloop: loop {
         while event::poll(Duration::default())? {
             game_state.render_screen(&stdout)?;
@@ -64,7 +66,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
     }
 
-    // cleanup
+    // cleanup terminal
     stdout.execute(Show)?;
     stdout.execute(LeaveAlternateScreen)?;
     terminal::disable_raw_mode()?;

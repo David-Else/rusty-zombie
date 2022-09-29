@@ -3,12 +3,11 @@ use crate::{world::Entity, Point2d};
 #[derive(Debug)]
 pub struct Hero {
     pub position: Point2d,
-    image: char,
 }
 
 impl Entity for Hero {
-    fn new(position: Point2d, image: char) -> Self {
-        Self { position, image }
+    fn new(position: Point2d) -> Self {
+        Self { position }
     }
 
     fn update(&mut self, key: &str) {

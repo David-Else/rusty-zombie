@@ -4,57 +4,66 @@ use crossterm::{
     style::{self, Stylize},
     terminal, ExecutableCommand, QueueableCommand, Result,
 };
+use rand::{thread_rng, Rng};
+use std::f32::consts::PI;
 use std::io::{Stdout, Write};
 #[derive(Debug)]
 
 pub struct GameState {
     zombies: Vec<Zombie>,
     heroes: Vec<Hero>,
-    screen: Vec<Vec<char>>,
+    screen_size: Point2d,
 }
 
 pub trait Entity {
     fn update(&mut self, key: &str);
-    fn new(position: Point2d, image: char) -> Self;
+    fn new(position: Point2d) -> Self;
 }
 
 impl GameState {
-    pub fn new(screen_size: &Point2d) -> Self {
+    pub fn new(screen_size: Point2d) -> Self {
         // create 2d array (matrix) as vector to represent the screen
-        let width = screen_size.x;
-        let height = screen_size.y;
-
         let zombies: Vec<Zombie> = vec![];
         let heroes: Vec<Hero> = vec![];
-        let screen = vec![vec![' '; width]; height];
         Self {
             zombies,
             heroes,
-            screen,
+            screen_size,
         }
     }
 
     // adds hero to the middle of the screen
-    pub fn add_hero(&mut self, image: char) {
-        self.heroes.push(Hero::new(
-            Point2d {
-                x: self.screen.len() / 2,
-                y: self.screen[0].len() / 2,
-            },
-            image,
-        ));
+    pub fn add_hero(&mut self) {
+        self.heroes.push(Hero::new(Point2d {
+            x: self.screen_size.x / 2,
+            y: self.screen_size.y / 2,
+        }));
+    }
+
+    fn calculate_random_position_around_point(&mut self, mid_point: Point2d) -> Point2d {
+        let minimum_r = self.screen_size.y / 2;
+
+        let rn: f64 = thread_rng().gen(); //.gen_range(0..1);
+        let theta = rn * (2.0 * PI) as f64;
+
+        let r: f64 = (thread_rng()
+            .gen_range((((minimum_r as f64) / 2.0).floor()) as usize..minimum_r))
+            as f64; // * (variation_in_r + minimum_r) as f64;
+
+        Point2d {
+            x: (((theta.cos() * r).floor() as isize) + (mid_point.x) as isize) as usize,
+            y: (((theta.sin() * r).floor() as isize) + (mid_point.y) as isize) as usize,
+        }
     }
 
     // adds specified number of zombies to random positions
-    pub fn add_zombies(&mut self, no: i32, image: char, number_cols: usize, number_rows: usize) {
+    pub fn add_zombies(&mut self, no: i32) {
         for _counter in 0..no {
-            self.zombies.push(Zombie::new(
-                Point2d {
-                    x: number_cols,
-                    y: number_rows,
-                },
-                image,
-            ));
+            let random_pos = self.calculate_random_position_around_point(Point2d {
+                x: self.screen_size.y / 2,
+                y: self.screen_size.x / 2,
+            });
+            self.zombies.push(Zombie::new(random_pos));
         }
     }
 
@@ -65,21 +74,13 @@ impl GameState {
         }
     }
 
-    pub fn screen_width(&mut self) -> usize {
-        self.screen.len()
-    }
-
-    pub fn screen_height(&mut self) -> usize {
-        self.screen[0].len()
-    }
-
     pub fn render_screen(&mut self, mut stdout: &Stdout) -> Result<()> {
         stdout.execute(terminal::Clear(terminal::ClearType::All))?;
         // border
-        for y in 0..self.screen_height() {
-            for x in 0..self.screen_width() {
-                if (y == 0 || y == self.screen_height() - 1)
-                    || (x == 0 || x == self.screen_width() - 1)
+        for y in 0..self.screen_size.y {
+            for x in 0..self.screen_size.x {
+                if (y == 0 || y == self.screen_size.y - 1)
+                    || (x == 0 || x == self.screen_size.y - 1)
                 {
                     stdout
                         .queue(cursor::MoveTo(x as u16, y as u16))?

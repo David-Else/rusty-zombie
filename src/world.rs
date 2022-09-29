@@ -22,7 +22,6 @@ pub trait Entity {
 
 impl GameState {
     pub fn new(screen_size: Point2d) -> Self {
-        // create 2d array (matrix) as vector to represent the screen
         let zombies: Vec<Zombie> = vec![];
         let heroes: Vec<Hero> = vec![];
         Self {
@@ -59,9 +58,11 @@ impl GameState {
     // adds specified number of zombies to random positions
     pub fn add_zombies(&mut self, no: i32) {
         for _counter in 0..no {
+            // create random position on each itteration and wipe it next time
+            // use middle of screen as hero position, only to avoid borrow error using actual position :)
             let random_pos = self.calculate_random_position_around_point(Point2d {
-                x: self.screen_size.y / 2,
-                y: self.screen_size.x / 2,
+                x: self.screen_size.x / 2,
+                y: self.screen_size.y / 2,
             });
             self.zombies.push(Zombie::new(random_pos));
         }
@@ -80,7 +81,7 @@ impl GameState {
         for y in 0..self.screen_size.y {
             for x in 0..self.screen_size.x {
                 if (y == 0 || y == self.screen_size.y - 1)
-                    || (x == 0 || x == self.screen_size.y - 1)
+                    || (x == 0 || x == self.screen_size.x - 1)
                 {
                     stdout
                         .queue(cursor::MoveTo(x as u16, y as u16))?

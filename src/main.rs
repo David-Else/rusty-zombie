@@ -7,6 +7,7 @@ use crossterm::{
     terminal::{self, EnterAlternateScreen, LeaveAlternateScreen},
     ExecutableCommand,
 };
+use hero::HeroMove;
 use std::{error::Error, io, time::Duration};
 use world::GameState;
 
@@ -42,27 +43,27 @@ fn main() -> Result<(), Box<dyn Error>> {
     // game loop
     'gameloop: loop {
         while event::poll(Duration::default())? {
-            game_state.render_screen(&stdout)?;
             if let Event::Key(key_event) = event::read()? {
                 match key_event.code {
                     KeyCode::Esc | KeyCode::Char('q') => {
                         break 'gameloop;
                     }
                     KeyCode::Char('h') => {
-                        game_state.update("h");
+                        game_state.update(HeroMove::Left);
                     }
                     KeyCode::Char('j') => {
-                        game_state.update("j");
+                        game_state.update(HeroMove::Down);
                     }
                     KeyCode::Char('k') => {
-                        game_state.update("k");
+                        game_state.update(HeroMove::Up);
                     }
                     KeyCode::Char('l') => {
-                        game_state.update("l");
+                        game_state.update(HeroMove::Right);
                     }
                     _ => {}
                 }
             }
+            game_state.render_screen(&stdout)?;
         }
     }
 

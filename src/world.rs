@@ -1,4 +1,4 @@
-use crate::{hero::Hero, zombie::Zombie, Point2d};
+use crate::{hero::Hero, hero::HeroMove, zombie::Zombie, Point2d};
 use crossterm::{
     cursor,
     style::{self, Stylize},
@@ -16,7 +16,7 @@ pub struct GameState {
 }
 
 pub trait Entity {
-    fn update(&mut self, key: &str);
+    fn update(&mut self, key: HeroMove);
     fn new(position: Point2d) -> Self;
 }
 
@@ -40,7 +40,7 @@ impl GameState {
     }
 
     fn calculate_random_position_around_point(&mut self, mid_point: Point2d) -> Point2d {
-        let minimum_r = self.screen_size.y / 2;
+        let minimum_r = self.screen_size.x / 2;
 
         let rn: f64 = thread_rng().gen(); //.gen_range(0..1);
         let theta = rn * (2.0 * PI) as f64;
@@ -68,7 +68,7 @@ impl GameState {
         }
     }
 
-    pub fn update(&mut self, key: &str) {
+    pub fn update(&mut self, key: HeroMove) {
         // https://www.reddit.com/r/learnrust/comments/x76d3o/how_do_i_iterate_over_a_vector_with_a_for_in_loop/
         for hero in &mut self.heroes {
             hero.update(key);
@@ -77,6 +77,13 @@ impl GameState {
 
     pub fn render_screen(&mut self, mut stdout: &Stdout) -> Result<()> {
         stdout.execute(terminal::Clear(terminal::ClearType::All))?;
+        // stdout.queue(cursor::MoveTo(15, 1))?;
+        // stdout.queue(style::Print(format!("{:?}", self.heroes[0])))?;
+
+        // stdout.queue(cursor::MoveTo(15, 2))?;
+        // stdout.queue(style::Print(format!("{:?}", self.screen_size)))?;
+        // stdout.queue(cursor::MoveTo(15, 3))?;
+        // stdout.queue(style::Print(format!("{:?}", self.zombies[0])))?;
         // border
         for y in 0..self.screen_size.y {
             for x in 0..self.screen_size.x {
@@ -84,7 +91,7 @@ impl GameState {
                     || (x == 0 || x == self.screen_size.x - 1)
                 {
                     stdout
-                        .queue(cursor::MoveTo(x as u16, y as u16))?
+                        .queue(cursor::MoveTo(y as u16, x as u16))?
                         .queue(style::PrintStyledContent("█".grey()))?;
                 }
             }
@@ -93,8 +100,8 @@ impl GameState {
         for zombie in self.zombies.iter() {
             stdout
                 .queue(cursor::MoveTo(
-                    zombie.position.x as u16,
                     zombie.position.y as u16,
+                    zombie.position.x as u16,
                 ))?
                 .queue(style::PrintStyledContent("z".green()))?;
         }
@@ -102,8 +109,8 @@ impl GameState {
         for hero in self.heroes.iter() {
             stdout
                 .queue(cursor::MoveTo(
-                    hero.position.x as u16,
                     hero.position.y as u16,
+                    hero.position.x as u16,
                 ))?
                 .queue(style::PrintStyledContent("h".red()))?;
         }

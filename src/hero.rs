@@ -30,26 +30,10 @@ impl Entity for Hero {
         self.last_key = key;
         match key {
             // this method needs to know width and height to prevent it going out of range
-            HeroMove::Up => {
-                if self.position.x > 0 {
-                    self.position.x -= 1
-                }
-            }
-            HeroMove::Down => {
-                if self.position.x < self.screen_size.x - 1 {
-                    self.position.x += 1
-                }
-            }
-            HeroMove::Right => {
-                if self.position.y < self.screen_size.y - 1 {
-                    self.position.y += 1
-                }
-            }
-            HeroMove::Left => {
-                if self.position.y > 0 {
-                    self.position.y -= 1
-                }
-            }
+            HeroMove::Up if self.position.x > 0 => self.position.x -= 1,
+            HeroMove::Down if self.position.x < self.screen_size.x - 1 => self.position.x += 1,
+            HeroMove::Right if self.position.y < self.screen_size.y - 1 => self.position.y += 1,
+            HeroMove::Left if self.position.y > 0 => self.position.y -= 1,
             _ => {
                 println!("Not compatible key!");
             }

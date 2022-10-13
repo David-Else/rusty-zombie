@@ -7,8 +7,8 @@ use crossterm::{
 use rand::{thread_rng, Rng};
 use std::f32::consts::PI;
 use std::io::{Stdout, Write};
-#[derive(Debug)]
 
+#[derive(Debug)]
 pub struct GameState {
     zombies: Vec<Zombie>,
     heroes: Vec<Hero>,
@@ -42,6 +42,19 @@ impl GameState {
         ));
     }
 
+    // adds specified number of zombies to random positions
+    pub fn add_zombies(&mut self, no: i32) {
+        for _counter in 0..no {
+            // create random position on each itteration and wipe it next time
+            // use middle of screen as hero position, only to avoid borrow error using actual position :)
+            let random_pos = self.calculate_random_position_around_point(Point2d {
+                x: self.screen_size.x / 2,
+                y: self.screen_size.y / 2,
+            });
+            self.zombies.push(Zombie::new(self.screen_size, random_pos));
+        }
+    }
+
     fn calculate_random_position_around_point(&mut self, mid_point: Point2d) -> Point2d {
         let minimum_r = self.screen_size.x / 2;
 
@@ -55,19 +68,6 @@ impl GameState {
         Point2d {
             x: (((theta.cos() * r).floor() as isize) + (mid_point.x) as isize) as usize,
             y: (((theta.sin() * r).floor() as isize) + (mid_point.y) as isize) as usize,
-        }
-    }
-
-    // adds specified number of zombies to random positions
-    pub fn add_zombies(&mut self, no: i32) {
-        for _counter in 0..no {
-            // create random position on each itteration and wipe it next time
-            // use middle of screen as hero position, only to avoid borrow error using actual position :)
-            let random_pos = self.calculate_random_position_around_point(Point2d {
-                x: self.screen_size.x / 2,
-                y: self.screen_size.y / 2,
-            });
-            self.zombies.push(Zombie::new(self.screen_size, random_pos));
         }
     }
 

@@ -35,7 +35,7 @@ impl GameState {
     }
 
     fn detect_zombie_collision_hero(&mut self) -> bool {
-        let mut result: bool;
+       // let mut result: bool= false;
 
         for zombie in self.zombies.iter() {
             if self.is_collision(
@@ -49,14 +49,11 @@ impl GameState {
                 },
             ) {
                 // panic!() WORKS;
-                result = true;
-                break;
-            } else {
-                result = false;
-            }
+                return true
+            } 
         }
 
-        result
+        false
     }
 
     // adds hero to the middle of the screen

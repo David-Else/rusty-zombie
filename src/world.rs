@@ -5,7 +5,6 @@ use crossterm::{
     terminal, ExecutableCommand, QueueableCommand, Result,
 };
 use rand::{thread_rng, Rng};
-use std::f32::consts::PI;
 use std::io::{Stdout, Write};
 
 #[derive(Debug)]
@@ -29,6 +28,35 @@ impl GameState {
             heroes,
             screen_size,
         }
+    }
+
+    fn is_collision(&self, point1: Point2d, point2: Point2d) -> bool {
+        point1.x == point2.x && point1.y == point2.y
+    }
+
+    fn detect_zombie_collision_hero(&mut self) -> bool {
+        let mut result: bool;
+
+        for zombie in self.zombies.iter() {
+            if self.is_collision(
+                Point2d {
+                    x: zombie.position.x,
+                    y: zombie.position.y,
+                },
+                Point2d {
+                    x: self.heroes[0].position.x,
+                    y: self.heroes[0].position.y,
+                },
+            ) {
+                // panic!() WORKS;
+                result = true;
+                break;
+            } else {
+                result = false;
+            }
+        }
+
+        result
     }
 
     // adds hero to the middle of the screen
@@ -55,11 +83,11 @@ impl GameState {
         }
     }
 
-    fn calculate_random_position_around_point(&mut self, mid_point: Point2d) -> Point2d {
+    fn calculate_random_position_around_point(&self, mid_point: Point2d) -> Point2d {
         let minimum_r = self.screen_size.x / 2;
 
         let rn: f64 = thread_rng().gen(); //.gen_range(0..1);
-        let theta = rn * (2.0 * PI) as f64;
+        let theta = rn * (2.0 * std::f32::consts::PI) as f64;
 
         let r: f64 = (thread_rng()
             .gen_range((((minimum_r as f64) / 2.0).floor()) as usize..minimum_r))
@@ -81,6 +109,9 @@ impl GameState {
     pub fn render_screen(&mut self, mut stdout: &Stdout) -> Result<()> {
         stdout.execute(terminal::Clear(terminal::ClearType::All))?;
         stdout.queue(style::Print(format!("{:?}", self.heroes[0])))?;
+        if self.detect_zombie_collision_hero() {
+            stdout.queue(style::Print(format!("YOU ARE DEAD!")))?;
+        }
 
         for y in 0..self.screen_size.y {
             for x in 0..self.screen_size.x {
@@ -111,6 +142,7 @@ impl GameState {
                 ))?
                 .queue(style::PrintStyledContent("h".red()))?;
         }
+
         // draw screen from queued buffer
         stdout.flush()?;
         Ok(())

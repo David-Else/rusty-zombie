@@ -11,7 +11,7 @@ use hero::HeroMove;
 use std::{error::Error, io, time::Duration};
 use world::GameState;
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 // a position on a grid to be displayed on the terminal
 pub struct Point2d {
     pub x: usize,

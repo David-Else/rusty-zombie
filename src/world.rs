@@ -17,7 +17,7 @@ pub struct GameState {
 
 pub trait Entity {
     fn update(&mut self, key: HeroMove);
-    fn new(position: Point2d) -> Self;
+    fn new(screen_size: Point2d, position: Point2d) -> Self;
 }
 
 impl GameState {
@@ -33,10 +33,13 @@ impl GameState {
 
     // adds hero to the middle of the screen
     pub fn add_hero(&mut self) {
-        self.heroes.push(Hero::new(Point2d {
-            x: self.screen_size.x / 2,
-            y: self.screen_size.y / 2,
-        }));
+        self.heroes.push(Hero::new(
+            self.screen_size,
+            Point2d {
+                x: self.screen_size.x / 2,
+                y: self.screen_size.y / 2,
+            },
+        ));
     }
 
     fn calculate_random_position_around_point(&mut self, mid_point: Point2d) -> Point2d {
@@ -64,7 +67,7 @@ impl GameState {
                 x: self.screen_size.x / 2,
                 y: self.screen_size.y / 2,
             });
-            self.zombies.push(Zombie::new(random_pos));
+            self.zombies.push(Zombie::new(self.screen_size, random_pos));
         }
     }
 
@@ -77,14 +80,8 @@ impl GameState {
 
     pub fn render_screen(&mut self, mut stdout: &Stdout) -> Result<()> {
         stdout.execute(terminal::Clear(terminal::ClearType::All))?;
-        // stdout.queue(cursor::MoveTo(15, 1))?;
-        // stdout.queue(style::Print(format!("{:?}", self.heroes[0])))?;
+        stdout.queue(style::Print(format!("{:?}", self.heroes[0])))?;
 
-        // stdout.queue(cursor::MoveTo(15, 2))?;
-        // stdout.queue(style::Print(format!("{:?}", self.screen_size)))?;
-        // stdout.queue(cursor::MoveTo(15, 3))?;
-        // stdout.queue(style::Print(format!("{:?}", self.zombies[0])))?;
-        // border
         for y in 0..self.screen_size.y {
             for x in 0..self.screen_size.x {
                 if (y == 0 || y == self.screen_size.y - 1)

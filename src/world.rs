@@ -2,10 +2,10 @@ use crate::{hero::Hero, hero::HeroMove, zombie::Zombie, Point2d};
 use crossterm::{
     cursor,
     style::{self, Stylize},
-    terminal, ExecutableCommand, QueueableCommand, Result,
+    terminal, ExecutableCommand, QueueableCommand,
 };
 use rand::{thread_rng, Rng};
-use std::io::{Stdout, Write};
+use std::io::{Result, Stdout, Write};
 
 #[derive(Debug)]
 pub struct GameState {
@@ -35,7 +35,7 @@ impl GameState {
     }
 
     fn detect_zombie_collision_hero(&mut self) -> bool {
-       // let mut result: bool= false;
+        // let mut result: bool= false;
 
         for zombie in self.zombies.iter() {
             if self.is_collision(
@@ -49,8 +49,8 @@ impl GameState {
                 },
             ) {
                 // panic!() WORKS;
-                return true
-            } 
+                return true;
+            }
         }
 
         false

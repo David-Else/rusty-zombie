@@ -105,6 +105,9 @@ impl GameState {
         for hero in &mut self.heroes {
             hero.update(key);
         }
+        for zombie in &mut self.zombies {
+            zombie.update(key);
+        }
     }
 
     pub fn render_screen(&mut self, mut stdout: &Stdout) -> Result<()> {

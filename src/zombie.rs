@@ -16,7 +16,7 @@ impl Entity for Zombie {
     }
     fn update(&mut self, _key: Direction) {
         // ERROR unuses str to match trait, how fix?
-        println!("I am updating")
+        println!("I am updating");
     }
 
     fn move_up(&mut self) {

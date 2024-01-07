@@ -18,4 +18,20 @@ impl Entity for Zombie {
         // ERROR unuses str to match trait, how fix?
         println!("I am updating")
     }
+
+    fn move_up(&mut self) {
+        todo!()
+    }
+
+    fn move_down(&mut self) {
+        todo!()
+    }
+
+    fn move_left(&mut self) {
+        todo!()
+    }
+
+    fn move_right(&mut self) {
+        todo!()
+    }
 }

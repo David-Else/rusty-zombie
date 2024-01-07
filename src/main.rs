@@ -4,7 +4,7 @@ mod zombie;
 use crossterm::{
     cursor::{Hide, Show},
     event::{self, Event, KeyCode},
-    terminal::{self, EnterAlternateScreen, LeaveAlternateScreen},
+    terminal::{self, size, EnterAlternateScreen, LeaveAlternateScreen},
     ExecutableCommand,
 };
 use hero::HeroMove;
@@ -26,7 +26,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     stdout.execute(Hide)?;
 
     // get size of terminal
-    let (number_cols, number_rows) = terminal::size()?;
+    let (number_cols, number_rows) = size()?;
     let screensize = Point2d {
         x: number_rows as usize,
         y: number_cols as usize,

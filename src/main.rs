@@ -7,9 +7,18 @@ use crossterm::{
     terminal::{self, size, EnterAlternateScreen, LeaveAlternateScreen},
     ExecutableCommand,
 };
-use hero::HeroMove;
+// use hero::HeroMove;
 use std::{error::Error, io, time::Duration};
 use world::GameState;
+
+#[derive(Debug, Clone, Copy)]
+pub enum Direction {
+    Up,
+    Down,
+    Left,
+    Right,
+    Nokey,
+}
 
 #[derive(Debug, Clone, Copy)]
 // a position on a grid to be displayed on the terminal
@@ -49,16 +58,16 @@ fn main() -> Result<(), Box<dyn Error>> {
                         break 'gameloop;
                     }
                     KeyCode::Char('h') => {
-                        game_state.update(HeroMove::Left);
+                        game_state.update(Direction::Left);
                     }
                     KeyCode::Char('j') => {
-                        game_state.update(HeroMove::Down);
+                        game_state.update(Direction::Down);
                     }
                     KeyCode::Char('k') => {
-                        game_state.update(HeroMove::Up);
+                        game_state.update(Direction::Up);
                     }
                     KeyCode::Char('l') => {
-                        game_state.update(HeroMove::Right);
+                        game_state.update(Direction::Right);
                     }
                     _ => {}
                 }

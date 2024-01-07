@@ -1,19 +1,10 @@
-use crate::{world::Entity, Point2d};
-
-#[derive(Debug, Clone, Copy)]
-pub enum HeroMove {
-    Up,
-    Down,
-    Left,
-    Right,
-    Nokey,
-}
+use crate::{world::Entity, Direction, Point2d};
 
 #[derive(Debug)]
 pub struct Hero {
     pub screen_size: Point2d,
     pub position: Point2d,
-    pub last_key: HeroMove,
+    pub last_key: Direction,
 }
 
 impl Entity for Hero {
@@ -21,7 +12,7 @@ impl Entity for Hero {
         Self {
             screen_size,
             position,
-            last_key: HeroMove::Nokey,
+            last_key: Direction::Nokey,
         }
     }
 
@@ -50,14 +41,14 @@ impl Entity for Hero {
     }
 
     // fn update(&mut self, key: &str) {
-    fn update(&mut self, key: HeroMove) {
+    fn update(&mut self, key: Direction) {
         self.last_key = key;
         match key {
             // this method needs to know width and height to prevent it going out of range
-            HeroMove::Up => self.move_up(),
-            HeroMove::Down => self.move_down(),
-            HeroMove::Right => self.move_right(),
-            HeroMove::Left => self.move_left(),
+            Direction::Up => self.move_up(),
+            Direction::Down => self.move_down(),
+            Direction::Right => self.move_right(),
+            Direction::Left => self.move_left(),
             _ => {
                 println!("Not compatible key!");
             }

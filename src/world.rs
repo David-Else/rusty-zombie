@@ -1,4 +1,4 @@
-use crate::{hero::Hero, hero::HeroMove, zombie::Zombie, Point2d};
+use crate::{hero::Hero, zombie::Zombie, Direction, Point2d};
 use crossterm::{
     cursor,
     style::{self, Stylize},
@@ -15,7 +15,7 @@ pub struct GameState {
 }
 
 pub trait Entity {
-    fn update(&mut self, key: HeroMove);
+    fn update(&mut self, key: Direction);
     fn new(screen_size: Point2d, position: Point2d) -> Self;
     fn move_up(&mut self);
     fn move_down(&mut self);
@@ -100,7 +100,7 @@ impl GameState {
         }
     }
 
-    pub fn update(&mut self, key: HeroMove) {
+    pub fn update(&mut self, key: Direction) {
         // https://www.reddit.com/r/learnrust/comments/x76d3o/how_do_i_iterate_over_a_vector_with_a_for_in_loop/
         for hero in &mut self.heroes {
             hero.update(key);

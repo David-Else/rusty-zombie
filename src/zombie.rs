@@ -1,4 +1,4 @@
-use crate::{hero::HeroMove, world::Entity, Point2d};
+use crate::{world::Entity, Direction, Point2d};
 
 #[derive(Debug)]
 pub struct Zombie {
@@ -14,7 +14,7 @@ impl Entity for Zombie {
             position: random_position,
         }
     }
-    fn update(&mut self, _key: HeroMove) {
+    fn update(&mut self, _key: Direction) {
         // ERROR unuses str to match trait, how fix?
         println!("I am updating")
     }

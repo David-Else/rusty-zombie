@@ -7,7 +7,6 @@ use crossterm::{
     terminal::{self, size, EnterAlternateScreen, LeaveAlternateScreen},
     ExecutableCommand,
 };
-// use hero::HeroMove;
 use std::{error::Error, io, time::Duration};
 use world::GameState;
 

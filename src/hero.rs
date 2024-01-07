@@ -4,7 +4,7 @@ use crate::{world::Entity, Direction, Point2d};
 pub struct Hero {
     pub screen_size: Point2d,
     pub position: Point2d,
-    pub last_key: Direction,
+    // pub last_key: Direction,
 }
 
 impl Entity for Hero {
@@ -12,7 +12,7 @@ impl Entity for Hero {
         Self {
             screen_size,
             position,
-            last_key: Direction::Nokey,
+            // last_key: Direction::Nokey,
         }
     }
 
@@ -42,7 +42,7 @@ impl Entity for Hero {
 
     // fn update(&mut self, key: &str) {
     fn update(&mut self, key: Direction) {
-        self.last_key = key;
+        // self.last_key = key;
         match key {
             // this method needs to know width and height to prevent it going out of range
             Direction::Up => self.move_up(),

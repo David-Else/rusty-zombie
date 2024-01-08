@@ -11,39 +11,48 @@ The code contains three modules: `hero`, `world`, and `zombie`. Each module cont
 ### Hero Module
 
 #### Patterns & Structure
+
 The `Hero` struct represents the player's character with a position, screen size, and last movement key. It implements a command pattern where each possible move is modeled as an enum variant (`HeroMove`). The `update` method processes the command and moves the hero accordingly.
 
 #### Improvements
-- Extract the bounds checking logic outside of the match statement for cleaner code and possibly more efficient collision handling.
+
+- DONE: Extract the bounds checking logic outside of the match statement for cleaner code and possibly more efficient collision handling.
 - Implement logging instead of printing errors directly, which allows for better debugging and user experience.
 
 ### World Module
 
 #### Patterns & Structure
+
 The `GameState` struct handles the overall game state, including a list of zombies and heroes. It includes methods for collision detection, adding heroes/zombies, and rendering the screen using `crossterm`. The `Entity` trait defines common functions for game entities, ensuring a consistent interface.
 
 #### Crossterm API Usage
+
 The rendering uses `crossterm` API functionalities such as `Clear`, `QueueableCommand`, and `PrintStyledContent`. Commands are queued up and the display is updated in a single flush to prevent flickering.
 
 #### Improvements
+
 - Reduce direct access to vector indexes (e.g., `self.heroes[0]`) to handle potential out-of-bounds errors more gracefully.
 - Factor out rendering logic into smaller functions or a separate renderer struct to simplify `GameState` and follow the Single Responsibility Principle.
-  
+
 ### Zombie Module
 
 #### Patterns & Structure
+
 The `Zombie` struct represents a zombie entity. Like `Hero`, it implements the `Entity` trait but does not have movement logic yet. The `update` method is unimplemented and simply prints a message.
 
 #### Improvements
+
 - Implement actual update behavior for zombies to make them part of the game's challenge.
 - Remove the `println!` call in the `update` method, as it violates the principle of least surprise. Updates should not produce side effects.
 
 ### main Function
 
 #### Patterns & Structure
+
 The main function initializes the game loop, setting up the terminal and handling input events. It uses `crossterm` to capture keyboard inputs and update the game state accordingly.
 
 #### Improvements
+
 - Implement a cleaner way to map keys to `HeroMove` commands, possibly using a hashmap or dedicated input handler.
 - Abstract away the setup and teardown of the terminal into separate functions or a context manager for better resource handling.
 

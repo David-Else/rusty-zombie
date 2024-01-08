@@ -8,13 +8,6 @@ use crossterm::{
 use rand::{thread_rng, Rng};
 use std::io::{Result, Stdout, Write};
 
-#[derive(Debug)]
-pub struct GameState {
-    zombies: Vec<Zombie>,
-    hero: Hero,
-    screen_size: Point2d,
-}
-
 pub trait Entity {
     fn update(&mut self, key: Direction);
     fn new(screen_size: Point2d, position: Point2d) -> Self;
@@ -24,19 +17,24 @@ pub trait Entity {
     fn move_right(&mut self);
 }
 
+#[derive(Debug)]
+pub struct GameState {
+    zombies: Vec<Zombie>,
+    hero: Hero,
+    screen_size: Point2d,
+}
+
 impl GameState {
     pub fn new(screen_size: Point2d) -> Self {
-        let zombies: Vec<Zombie> = vec![];
-        let hero = Hero::new(
-            screen_size,
-            Point2d {
-                x: screen_size.x / 2,
-                y: screen_size.y / 2,
-            },
-        );
         Self {
-            zombies,
-            hero,
+            zombies: Vec::new(), // The compiler knows that this vector is meant to hold elements of type `Zombie` variable
+            hero: Hero::new(
+                screen_size,
+                Point2d {
+                    x: screen_size.x / 2,
+                    y: screen_size.y / 2,
+                },
+            ),
             screen_size,
         }
     }
@@ -45,19 +43,12 @@ impl GameState {
         point1.x == point2.x && point1.y == point2.y
     }
 
-    pub fn print_top_right(stdout: &mut Stdout, text: &str) -> Result<()> {
+    pub fn print_middle_screen(stdout: &mut Stdout, text: &str) -> Result<()> {
         let (cols, rows) = size()?; // Get the number of columns and rows of the terminal window
-
-        // Calculate the start position for the text at the top right corner
-        // let start_col = if cols < text.len() as u16 {
-        //     0
-        // } else {
-        //     cols - text.len() as u16
-        // };
 
         // Move cursor to the calculated position and print the text
         stdout
-            .queue(cursor::MoveTo(cols / 2, rows / 2))? // Move the cursor to the top right position
+            .queue(cursor::MoveTo(cols / 2, rows / 2))?
             .queue(crossterm::style::Print(text))? // Print the text
             .flush()?; // Flush the stdout to immediately output the text
 
@@ -65,8 +56,6 @@ impl GameState {
     }
 
     pub fn detect_zombie_collision_hero(&mut self) -> bool {
-        // let mut result: bool= false;
-
         for zombie in self.zombies.iter() {
             if self.is_collision(
                 Point2d {
@@ -78,23 +67,11 @@ impl GameState {
                     y: self.hero.position.y,
                 },
             ) {
-                // panic!() WORKS;
                 return true;
             }
         }
 
         false
-    }
-
-    // adds hero to the middle of the screen
-    pub fn add_hero(&mut self) {
-        self.hero = Hero::new(
-            self.screen_size,
-            Point2d {
-                x: self.screen_size.x / 2,
-                y: self.screen_size.y / 2,
-            },
-        );
     }
 
     // adds specified number of zombies to random positions
@@ -152,6 +129,7 @@ impl GameState {
                 }
             }
         }
+
         // zombies
         for zombie in self.zombies.iter() {
             stdout
@@ -161,6 +139,7 @@ impl GameState {
                 ))?
                 .queue(style::PrintStyledContent("z".green()))?;
         }
+
         // hero
         stdout
             .queue(cursor::MoveTo(

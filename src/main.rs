@@ -21,17 +21,16 @@ pub enum Direction {
 }
 
 #[derive(Debug, Clone, Copy)]
-// a position on a grid to be displayed on the terminal
 pub struct Point2d {
     pub x: usize,
     pub y: usize,
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
-    // Set a fixed frame duration for each 'tick' of the game loop
+    // set a fixed frame duration for each 'tick' of the game loop
     let frame_duration = Duration::from_nanos(1_000_000_000u64 / 60); // 60 FPS
 
-    // Set the poll duration to zero for non-blocking input check
+    // set the poll duration to zero for non-blocking input check
     let input_poll_duration = Duration::from_millis(0);
 
     // setup terminal
@@ -39,38 +38,31 @@ fn main() -> Result<(), Box<dyn Error>> {
     terminal::enable_raw_mode()?;
     stdout.execute(EnterAlternateScreen)?;
     stdout.execute(Hide)?;
-
-    // get size of terminal
-    let (number_cols, number_rows) = size()?;
-    let screensize = Point2d {
-        x: number_rows as usize,
-        y: number_cols as usize,
+    let screensize = {
+        let (number_cols, number_rows) = size()?;
+        Point2d {
+            x: number_rows as usize,
+            y: number_cols as usize,
+        }
     };
 
     // create game state
     let mut game_state = GameState::new(screensize);
-    game_state.add_hero();
     game_state.add_zombies(64);
 
-    // render screen
-    game_state.render_screen(&stdout)?; // Delete, temp way to start with screen
-
     fn tick(game_state: &mut GameState) -> Result<(), Box<dyn Error>> {
-        // Perform automatic game updates here, e.g., move zombies
-        // game_state.move_zombies(); // A hypothetical method you'll need to implement
         // WARNING hack!!! sending a direction when it is not needed
         game_state.update_zombie(Direction::Up); // Check for collisions or any other periodic logic
-                                                 // ...
 
-        // Render the updated game state
+        // render the updated game state
         let mut stdout = io::stdout();
-
         game_state.render_screen(&mut stdout)?;
 
+        // check for collisions
         if game_state.detect_zombie_collision_hero() {
-            world::GameState::print_top_right(&mut stdout, "You are dead!")?;
-            // stdout.queue(style::Print("YOU ARE DEAD!".to_string()))?;
+            world::GameState::print_middle_screen(&mut stdout, "You are dead!")?;
         }
+
         Ok(())
     }
 
@@ -101,7 +93,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             }
         }
 
-        // Execute the tick function to render the game
+        // Execute the tick function to render/update the game and check physics
         tick(&mut game_state)?;
 
         // Calculate how long the loop iteration took

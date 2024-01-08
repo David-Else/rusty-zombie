@@ -1,4 +1,6 @@
 mod hero;
+mod movement;
+mod random;
 mod world;
 mod zombie;
 use crossterm::{
@@ -17,7 +19,6 @@ pub enum Direction {
     Down,
     Left,
     Right,
-    Nokey,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -53,6 +54,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     fn tick(game_state: &mut GameState) -> Result<(), Box<dyn Error>> {
         // WARNING hack!!! sending a direction when it is not needed
         game_state.update_zombie(Direction::Up); // Check for collisions or any other periodic logic
+
+        // game_state.hero.update(direction, game_state.screen_size);
 
         // render the updated game state
         let mut stdout = io::stdout();

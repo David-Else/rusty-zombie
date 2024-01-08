@@ -1,26 +1,21 @@
-use crate::{hero::Hero, zombie::Zombie, Direction, Point2d};
+use crate::{hero::Hero, random::random_position_around_point, zombie::Zombie, Direction, Point2d};
 use crossterm::{
     cursor,
     style::{self, Stylize},
     terminal::{self, size},
     ExecutableCommand, QueueableCommand,
 };
-use rand::{thread_rng, Rng};
 use std::io::{Result, Stdout, Write};
 
 pub trait Entity {
-    fn update(&mut self, key: Direction);
-    fn new(screen_size: Point2d, position: Point2d) -> Self;
-    fn move_up(&mut self);
-    fn move_down(&mut self);
-    fn move_left(&mut self);
-    fn move_right(&mut self);
+    fn update(&mut self, direction: Direction, screen_size: Point2d);
+    fn new(position: Point2d) -> Self;
 }
 
 #[derive(Debug)]
 pub struct GameState {
-    zombies: Vec<Zombie>,
-    hero: Hero,
+    pub zombies: Vec<Zombie>,
+    pub hero: Hero,
     screen_size: Point2d,
 }
 
@@ -28,13 +23,10 @@ impl GameState {
     pub fn new(screen_size: Point2d) -> Self {
         Self {
             zombies: Vec::new(), // The compiler knows that this vector is meant to hold elements of type `Zombie` variable
-            hero: Hero::new(
-                screen_size,
-                Point2d {
-                    x: screen_size.x / 2,
-                    y: screen_size.y / 2,
-                },
-            ),
+            hero: Hero::new(Point2d {
+                x: screen_size.x / 2,
+                y: screen_size.y / 2,
+            }),
             screen_size,
         }
     }
@@ -79,38 +71,20 @@ impl GameState {
         for _counter in 0..no {
             // create random position on each itteration and wipe it next time
             // use middle of screen as hero position, only to avoid borrow error using actual position :)
-            let random_pos = self.calculate_random_position_around_point(Point2d {
-                x: self.screen_size.x / 2,
-                y: self.screen_size.y / 2,
-            });
-            self.zombies.push(Zombie::new(self.screen_size, random_pos));
-        }
-    }
-
-    fn calculate_random_position_around_point(&self, mid_point: Point2d) -> Point2d {
-        let minimum_r = self.screen_size.x / 2;
-
-        let rn: f64 = thread_rng().gen(); //.gen_range(0..1);
-        let theta = rn * (2.0 * std::f32::consts::PI) as f64;
-
-        let r: f64 = (thread_rng()
-            .gen_range((((minimum_r as f64) / 2.0).floor()) as usize..minimum_r))
-            as f64; // * (variation_in_r + minimum_r) as f64;
-
-        Point2d {
-            x: (((theta.cos() * r).floor() as isize) + (mid_point.x) as isize) as usize,
-            y: (((theta.sin() * r).floor() as isize) + (mid_point.y) as isize) as usize,
+            self.zombies
+                .push(Zombie::new(random_position_around_point(self.screen_size)));
         }
     }
 
     pub fn update_hero(&mut self, key: Direction) {
-        self.hero.update(key);
+        // self.hero.update(key);
+        self.hero.update(key, self.screen_size);
     }
 
     pub fn update_zombie(&mut self, key: Direction) {
         for zombie in &mut self.zombies {
             // TODO how do we get rid of the key param?
-            zombie.update(key);
+            zombie.update(key, self.screen_size);
         }
     }
 

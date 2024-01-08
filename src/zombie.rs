@@ -1,10 +1,12 @@
-use rand::Rng;
-
-use crate::{world::Entity, Direction, Point2d};
+use crate::{
+    movement::{move_down, move_left, move_right, move_up},
+    random::{random_direction, random_usize_in_inclusive_range},
+    world::Entity,
+    Direction, Point2d,
+};
 
 #[derive(Debug)]
 pub struct Zombie {
-    pub screen_size: Point2d,
     pub position: Point2d,
     move_every_n_ticks: usize,
     tick_counter: usize,
@@ -12,62 +14,25 @@ pub struct Zombie {
 
 impl Entity for Zombie {
     // associated (static) function, used as constructor
-    fn new(screen_size: Point2d, random_position: Point2d) -> Self {
-        let mut rng = rand::thread_rng(); // Create a random number generator
-        let zombie_speed: usize = rng.gen_range(40..=50); // Generate a random usize between 0 and 50
-
+    fn new(position: Point2d) -> Self {
         Self {
-            screen_size,
-            position: random_position,
-            move_every_n_ticks: zombie_speed,
+            position,
+            move_every_n_ticks: random_usize_in_inclusive_range(40, 50),
             tick_counter: 0,
         }
     }
-    fn update(&mut self, _key: Direction) {
-        // Generate a random number from 0 to 3
-        let mut rng = rand::thread_rng();
-        let dir = rng.gen_range(0..4);
 
-        // Increment the tick counter
+    fn update(&mut self, _direction: Direction, screen_size: Point2d) {
         self.tick_counter += 1;
-
-        // Check if it's time to move
         if self.tick_counter >= self.move_every_n_ticks {
-            match dir {
-                0 => self.move_up(),
-                1 => self.move_down(),
-                2 => self.move_right(),
-                3 => self.move_left(),
-                _ => unreachable!(), // We only generate numbers 0-3, so this case is impossible
-            }
-            // Reset the counter
-            self.tick_counter = 0;
-        }
-
-        // Match the generated number to a direction and move the zombie
-    }
-
-    fn move_up(&mut self) {
-        if self.position.x > 0 {
-            self.position.x -= 1;
-        }
-    }
-
-    fn move_down(&mut self) {
-        if self.position.x < self.screen_size.x - 1 {
-            self.position.x += 1;
-        }
-    }
-
-    fn move_right(&mut self) {
-        if self.position.y < self.screen_size.y - 1 {
-            self.position.y += 1;
-        }
-    }
-
-    fn move_left(&mut self) {
-        if self.position.y > 0 {
-            self.position.y -= 1;
+            self.position = match random_direction() {
+                0 => move_up(self.position),
+                1 => move_down(self.position, screen_size),
+                2 => move_right(self.position, screen_size),
+                3 => move_left(self.position),
+                _ => unreachable!(), // We only generate numbers 0-3, so this should never happen
+            };
+            self.tick_counter = 0; // Reset the counter after the move
         }
     }
 }

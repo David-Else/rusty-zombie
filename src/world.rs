@@ -2,7 +2,8 @@ use crate::{hero::Hero, zombie::Zombie, Direction, Point2d};
 use crossterm::{
     cursor,
     style::{self, Stylize},
-    terminal, ExecutableCommand, QueueableCommand,
+    terminal::{self, size},
+    ExecutableCommand, QueueableCommand,
 };
 use rand::{thread_rng, Rng};
 use std::io::{Result, Stdout, Write};
@@ -38,7 +39,26 @@ impl GameState {
         point1.x == point2.x && point1.y == point2.y
     }
 
-    fn detect_zombie_collision_hero(&mut self) -> bool {
+    pub fn print_top_right(stdout: &mut Stdout, text: &str) -> Result<()> {
+        let (cols, rows) = size()?; // Get the number of columns and rows of the terminal window
+
+        // Calculate the start position for the text at the top right corner
+        // let start_col = if cols < text.len() as u16 {
+        //     0
+        // } else {
+        //     cols - text.len() as u16
+        // };
+
+        // Move cursor to the calculated position and print the text
+        stdout
+            .queue(cursor::MoveTo(cols / 2, rows / 2))? // Move the cursor to the top right position
+            .queue(crossterm::style::Print(text))? // Print the text
+            .flush()?; // Flush the stdout to immediately output the text
+
+        Ok(())
+    }
+
+    pub fn detect_zombie_collision_hero(&mut self) -> bool {
         // let mut result: bool= false;
 
         for zombie in self.zombies.iter() {
@@ -100,22 +120,31 @@ impl GameState {
         }
     }
 
-    pub fn update(&mut self, key: Direction) {
-        // https://www.reddit.com/r/learnrust/comments/x76d3o/how_do_i_iterate_over_a_vector_with_a_for_in_loop/
+    pub fn update_hero(&mut self, key: Direction) {
         for hero in &mut self.heroes {
             hero.update(key);
         }
+    }
+    pub fn update_zombie(&mut self, key: Direction) {
         for zombie in &mut self.zombies {
+            // TODO how do we get rid of the key param?
             zombie.update(key);
         }
     }
+    // pub fn update(&mut self, key: Direction) {
+    //     // https://www.reddit.com/r/learnrust/comments/x76d3o/how_do_i_iterate_over_a_vector_with_a_for_in_loop/
+    //     for hero in &mut self.heroes {
+    //         hero.update(key);
+    //     }
+    //     for zombie in &mut self.zombies {
+    //         // TODO how do we get rid of the key param?
+    //         zombie.update(key);
+    //     }
+    // }
 
     pub fn render_screen(&mut self, mut stdout: &Stdout) -> Result<()> {
         stdout.execute(terminal::Clear(terminal::ClearType::All))?;
-        stdout.queue(style::Print(format!("{:?}", self.heroes[0])))?;
-        if self.detect_zombie_collision_hero() {
-            stdout.queue(style::Print(format!("YOU ARE DEAD!")))?;
-        }
+        // stdout.queue(style::Print(format!("{:?}", self.heroes[0])))?;
 
         for y in 0..self.screen_size.y {
             for x in 0..self.screen_size.x {

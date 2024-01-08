@@ -4,10 +4,12 @@ mod zombie;
 use crossterm::{
     cursor::{Hide, Show},
     event::{self, Event, KeyCode},
+    style,
     terminal::{self, size, EnterAlternateScreen, LeaveAlternateScreen},
-    ExecutableCommand,
+    ExecutableCommand, QueueableCommand,
 };
-use std::{error::Error, io, time::Duration};
+use std::time::{Duration, Instant};
+use std::{error::Error, io};
 use world::GameState;
 
 #[derive(Debug, Clone, Copy)]
@@ -27,6 +29,9 @@ pub struct Point2d {
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
+    // Set a fixed frame duration for each 'tick' of the game loop
+    let frame_duration = Duration::from_millis(100); // e.g., 10 frames per second
+
     // setup terminal
     let mut stdout = io::stdout();
     terminal::enable_raw_mode()?;
@@ -48,30 +53,62 @@ fn main() -> Result<(), Box<dyn Error>> {
     // render screen
     game_state.render_screen(&stdout)?; // Delete, temp way to start with screen
 
-    // game loop
+    fn tick(game_state: &mut GameState) -> Result<(), Box<dyn Error>> {
+        // Perform automatic game updates here, e.g., move zombies
+        // game_state.move_zombies(); // A hypothetical method you'll need to implement
+        // WARNING hack!!! sending a direction when it is not needed
+        game_state.update_zombie(Direction::Up); // Check for collisions or any other periodic logic
+                                                 // ...
+
+        // Render the updated game state
+        let mut stdout = io::stdout();
+
+        game_state.render_screen(&mut stdout)?;
+
+        if game_state.detect_zombie_collision_hero() {
+            world::GameState::print_top_right(&mut stdout, "You are dead!")?;
+            // stdout.queue(style::Print("YOU ARE DEAD!".to_string()))?;
+        }
+        Ok(())
+    }
+
     'gameloop: loop {
-        while event::poll(Duration::default())? {
+        let loop_start = Instant::now(); // Mark the beginning of the loop iteration
+
+        // Poll for user input with a non-blocking timeout
+        if event::poll(Duration::from_millis(100))? {
+            // If there's an event, process it
             if let Event::Key(key_event) = event::read()? {
                 match key_event.code {
                     KeyCode::Esc | KeyCode::Char('q') => {
                         break 'gameloop;
                     }
                     KeyCode::Char('h') => {
-                        game_state.update(Direction::Left);
+                        game_state.update_hero(Direction::Left);
                     }
                     KeyCode::Char('j') => {
-                        game_state.update(Direction::Down);
+                        game_state.update_hero(Direction::Down);
                     }
                     KeyCode::Char('k') => {
-                        game_state.update(Direction::Up);
+                        game_state.update_hero(Direction::Up);
                     }
                     KeyCode::Char('l') => {
-                        game_state.update(Direction::Right);
+                        game_state.update_hero(Direction::Right);
                     }
                     _ => {}
                 }
             }
-            game_state.render_screen(&stdout)?;
+        }
+
+        // Execute the tick function to render the game
+        tick(&mut game_state)?;
+
+        // Calculate how long the loop iteration took
+        let loop_duration = loop_start.elapsed();
+
+        // If the loop finished faster than the frame duration, sleep the remaining time
+        if loop_duration < frame_duration {
+            std::thread::sleep(frame_duration - loop_duration);
         }
     }
 

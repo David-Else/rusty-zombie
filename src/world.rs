@@ -1,9 +1,11 @@
 use crate::{
-    hero::Hero, random::random_position_around_point, render::render_screen, zombie::Zombie,
+    hero::Hero,
+    random::random_position_around_point,
+    render::{print_middle_screen, render_screen},
+    zombie::Zombie,
     Direction, Point2d,
 };
-use crossterm::{cursor, terminal::size, QueueableCommand};
-use std::io::{self, Result, Stdout, Write};
+use std::io::{self, Result};
 
 pub trait Entity {
     fn update(&mut self, direction: Direction, screen_size: Point2d);
@@ -40,7 +42,7 @@ impl GameState {
         render_screen(&mut stdout, &self.zombies, &self.hero, self.screen_size)?;
         // check for collisions
         if self.detect_zombie_collision_hero() {
-            self.print_middle_screen(&mut stdout, "You are dead!")?;
+            print_middle_screen(&mut stdout, "You are dead!")?;
         }
 
         Ok(())
@@ -48,18 +50,6 @@ impl GameState {
 
     fn is_collision(&self, point1: Point2d, point2: Point2d) -> bool {
         point1.x == point2.x && point1.y == point2.y
-    }
-
-    fn print_middle_screen(&self, stdout: &mut Stdout, text: &str) -> Result<()> {
-        let (cols, rows) = size()?; // Get the number of columns and rows of the terminal window
-
-        // Move cursor to the calculated position and print the text
-        stdout
-            .queue(cursor::MoveTo(cols / 2, rows / 2))?
-            .queue(crossterm::style::Print(text))? // Print the text
-            .flush()?; // Flush the stdout to immediately output the text
-
-        Ok(())
     }
 
     pub fn detect_zombie_collision_hero(&mut self) -> bool {

@@ -48,27 +48,11 @@ impl GameState {
         Ok(())
     }
 
-    fn is_collision(&self, point1: Point2d, point2: Point2d) -> bool {
-        point1.x == point2.x && point1.y == point2.y
-    }
-
-    pub fn detect_zombie_collision_hero(&mut self) -> bool {
-        for zombie in self.zombies.iter() {
-            if self.is_collision(
-                Point2d {
-                    x: zombie.position.x,
-                    y: zombie.position.y,
-                },
-                Point2d {
-                    x: self.hero.position.x,
-                    y: self.hero.position.y,
-                },
-            ) {
-                return true;
-            }
-        }
-
-        false
+    // The `any` method tests whether any element of the iterator matches a predicate and returns `true` as soon as it finds a match
+    pub fn detect_zombie_collision_hero(&self) -> bool {
+        self.zombies
+            .iter()
+            .any(|zombie| zombie.position == self.hero.position)
     }
 
     // adds specified number of zombies to random positions

@@ -22,7 +22,7 @@ pub enum Direction {
     Right,
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Point2d {
     pub x: usize,
     pub y: usize,

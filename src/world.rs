@@ -69,21 +69,17 @@ impl GameState {
     // adds specified number of zombies to random positions
     pub fn add_zombies(&mut self, no: i32) {
         for _counter in 0..no {
-            // create random position on each itteration and wipe it next time
-            // use middle of screen as hero position, only to avoid borrow error using actual position :)
             self.zombies
                 .push(Zombie::new(random_position_around_point(self.screen_size)));
         }
     }
 
     pub fn update_hero(&mut self, key: Direction) {
-        // self.hero.update(key);
         self.hero.update(key, self.screen_size);
     }
 
     pub fn update_zombie(&mut self, key: Direction) {
         for zombie in &mut self.zombies {
-            // TODO how do we get rid of the key param?
             zombie.update(key, self.screen_size);
         }
     }

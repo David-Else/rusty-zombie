@@ -1,13 +1,11 @@
-use std::io::{Result, Stdout, Write};
-
+use crate::{hero::Hero, zombie::Zombie, Point2d};
 use crossterm::{
     cursor,
     style::{self, Stylize},
     terminal::{self, size},
     ExecutableCommand, QueueableCommand,
 };
-
-use crate::{hero::Hero, zombie::Zombie, Point2d};
+use std::io::{Result, Stdout, Write};
 
 pub fn render_screen(
     stdout: &mut Stdout,

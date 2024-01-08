@@ -13,10 +13,13 @@ pub struct Zombie {
 impl Entity for Zombie {
     // associated (static) function, used as constructor
     fn new(screen_size: Point2d, random_position: Point2d) -> Self {
+        let mut rng = rand::thread_rng(); // Create a random number generator
+        let zombie_speed: usize = rng.gen_range(40..=50); // Generate a random usize between 0 and 50
+
         Self {
             screen_size,
             position: random_position,
-            move_every_n_ticks: 50,
+            move_every_n_ticks: zombie_speed,
             tick_counter: 0,
         }
     }

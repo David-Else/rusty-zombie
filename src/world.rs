@@ -86,7 +86,6 @@ impl GameState {
 
     pub fn render_screen(&mut self, mut stdout: &Stdout) -> Result<()> {
         stdout.execute(terminal::Clear(terminal::ClearType::All))?;
-        // stdout.queue(style::Print(format!("{:?}", self.heroes[0])))?;
 
         for y in 0..self.screen_size.y {
             for x in 0..self.screen_size.x {

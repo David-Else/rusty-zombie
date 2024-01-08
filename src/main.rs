@@ -30,7 +30,10 @@ pub struct Point2d {
 
 fn main() -> Result<(), Box<dyn Error>> {
     // Set a fixed frame duration for each 'tick' of the game loop
-    let frame_duration = Duration::from_millis(100); // e.g., 10 frames per second
+    let frame_duration = Duration::from_nanos(1_000_000_000u64 / 60); // 60 FPS
+
+    // Set the poll duration to zero for non-blocking input check
+    let input_poll_duration = Duration::from_millis(0);
 
     // setup terminal
     let mut stdout = io::stdout();
@@ -75,8 +78,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     'gameloop: loop {
         let loop_start = Instant::now(); // Mark the beginning of the loop iteration
 
-        // Poll for user input with a non-blocking timeout
-        if event::poll(Duration::from_millis(100))? {
+        if event::poll(input_poll_duration)? {
             // If there's an event, process it
             if let Event::Key(key_event) = event::read()? {
                 match key_event.code {

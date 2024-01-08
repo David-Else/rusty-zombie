@@ -6,6 +6,8 @@ use crate::{world::Entity, Direction, Point2d};
 pub struct Zombie {
     pub screen_size: Point2d,
     pub position: Point2d,
+    move_every_n_ticks: usize,
+    tick_counter: usize,
 }
 
 impl Entity for Zombie {
@@ -14,6 +16,8 @@ impl Entity for Zombie {
         Self {
             screen_size,
             position: random_position,
+            move_every_n_ticks: 50,
+            tick_counter: 0,
         }
     }
     fn update(&mut self, _key: Direction) {
@@ -21,14 +25,23 @@ impl Entity for Zombie {
         let mut rng = rand::thread_rng();
         let dir = rng.gen_range(0..4);
 
-        // Match the generated number to a direction and move the zombie
-        match dir {
-            0 => self.move_up(),
-            1 => self.move_down(),
-            2 => self.move_right(),
-            3 => self.move_left(),
-            _ => unreachable!(), // We only generate numbers 0-3, so this case is impossible
+        // Increment the tick counter
+        self.tick_counter += 1;
+
+        // Check if it's time to move
+        if self.tick_counter >= self.move_every_n_ticks {
+            match dir {
+                0 => self.move_up(),
+                1 => self.move_down(),
+                2 => self.move_right(),
+                3 => self.move_left(),
+                _ => unreachable!(), // We only generate numbers 0-3, so this case is impossible
+            }
+            // Reset the counter
+            self.tick_counter = 0;
         }
+
+        // Match the generated number to a direction and move the zombie
     }
 
     fn move_up(&mut self) {

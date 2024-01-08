@@ -11,7 +11,7 @@ use std::io::{Result, Stdout, Write};
 #[derive(Debug)]
 pub struct GameState {
     zombies: Vec<Zombie>,
-    heroes: Vec<Hero>,
+    hero: Hero,
     screen_size: Point2d,
 }
 
@@ -27,10 +27,16 @@ pub trait Entity {
 impl GameState {
     pub fn new(screen_size: Point2d) -> Self {
         let zombies: Vec<Zombie> = vec![];
-        let heroes: Vec<Hero> = vec![];
+        let hero = Hero::new(
+            screen_size,
+            Point2d {
+                x: screen_size.x / 2,
+                y: screen_size.y / 2,
+            },
+        );
         Self {
             zombies,
-            heroes,
+            hero,
             screen_size,
         }
     }
@@ -68,8 +74,8 @@ impl GameState {
                     y: zombie.position.y,
                 },
                 Point2d {
-                    x: self.heroes[0].position.x,
-                    y: self.heroes[0].position.y,
+                    x: self.hero.position.x,
+                    y: self.hero.position.y,
                 },
             ) {
                 // panic!() WORKS;
@@ -82,13 +88,13 @@ impl GameState {
 
     // adds hero to the middle of the screen
     pub fn add_hero(&mut self) {
-        self.heroes.push(Hero::new(
+        self.hero = Hero::new(
             self.screen_size,
             Point2d {
                 x: self.screen_size.x / 2,
                 y: self.screen_size.y / 2,
             },
-        ));
+        );
     }
 
     // adds specified number of zombies to random positions
@@ -121,26 +127,15 @@ impl GameState {
     }
 
     pub fn update_hero(&mut self, key: Direction) {
-        for hero in &mut self.heroes {
-            hero.update(key);
-        }
+        self.hero.update(key);
     }
+
     pub fn update_zombie(&mut self, key: Direction) {
         for zombie in &mut self.zombies {
             // TODO how do we get rid of the key param?
             zombie.update(key);
         }
     }
-    // pub fn update(&mut self, key: Direction) {
-    //     // https://www.reddit.com/r/learnrust/comments/x76d3o/how_do_i_iterate_over_a_vector_with_a_for_in_loop/
-    //     for hero in &mut self.heroes {
-    //         hero.update(key);
-    //     }
-    //     for zombie in &mut self.zombies {
-    //         // TODO how do we get rid of the key param?
-    //         zombie.update(key);
-    //     }
-    // }
 
     pub fn render_screen(&mut self, mut stdout: &Stdout) -> Result<()> {
         stdout.execute(terminal::Clear(terminal::ClearType::All))?;
@@ -167,14 +162,12 @@ impl GameState {
                 .queue(style::PrintStyledContent("z".green()))?;
         }
         // hero
-        for hero in self.heroes.iter() {
-            stdout
-                .queue(cursor::MoveTo(
-                    hero.position.y as u16,
-                    hero.position.x as u16,
-                ))?
-                .queue(style::PrintStyledContent("h".red()))?;
-        }
+        stdout
+            .queue(cursor::MoveTo(
+                self.hero.position.y as u16,
+                self.hero.position.x as u16,
+            ))?
+            .queue(style::PrintStyledContent("h".red()))?;
 
         // draw screen from queued buffer
         stdout.flush()?;

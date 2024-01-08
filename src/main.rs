@@ -4,9 +4,8 @@ mod zombie;
 use crossterm::{
     cursor::{Hide, Show},
     event::{self, Event, KeyCode},
-    style,
     terminal::{self, size, EnterAlternateScreen, LeaveAlternateScreen},
-    ExecutableCommand, QueueableCommand,
+    ExecutableCommand,
 };
 use std::time::{Duration, Instant};
 use std::{error::Error, io};

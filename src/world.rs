@@ -1,11 +1,9 @@
-use crate::{hero::Hero, random::random_position_around_point, zombie::Zombie, Direction, Point2d};
-use crossterm::{
-    cursor,
-    style::{self, Stylize},
-    terminal::{self, size},
-    ExecutableCommand, QueueableCommand,
+use crate::{
+    hero::Hero, random::random_position_around_point, render::render_screen, zombie::Zombie,
+    Direction, Point2d,
 };
-use std::io::{Result, Stdout, Write};
+use crossterm::{cursor, terminal::size, QueueableCommand};
+use std::io::{self, Result, Stdout, Write};
 
 pub trait Entity {
     fn update(&mut self, direction: Direction, screen_size: Point2d);
@@ -14,12 +12,14 @@ pub trait Entity {
 
 #[derive(Debug)]
 pub struct GameState {
+    // fields representing the state of the game
     pub zombies: Vec<Zombie>,
     pub hero: Hero,
     screen_size: Point2d,
 }
 
 impl GameState {
+    // methods to manage the game state
     pub fn new(screen_size: Point2d) -> Self {
         Self {
             zombies: Vec::new(), // The compiler knows that this vector is meant to hold elements of type `Zombie` variable
@@ -31,11 +31,26 @@ impl GameState {
         }
     }
 
+    pub fn tick(&mut self) -> Result<()> {
+        // WARNING hack!!! sending a direction when it is not needed
+        self.update_zombie(Direction::Up); // Check for collisions or any other periodic logic
+
+        // render the updated game state
+        let mut stdout = io::stdout();
+        render_screen(&mut stdout, &self.zombies, &self.hero, self.screen_size)?;
+        // check for collisions
+        if self.detect_zombie_collision_hero() {
+            self.print_middle_screen(&mut stdout, "You are dead!")?;
+        }
+
+        Ok(())
+    }
+
     fn is_collision(&self, point1: Point2d, point2: Point2d) -> bool {
         point1.x == point2.x && point1.y == point2.y
     }
 
-    pub fn print_middle_screen(stdout: &mut Stdout, text: &str) -> Result<()> {
+    fn print_middle_screen(&self, stdout: &mut Stdout, text: &str) -> Result<()> {
         let (cols, rows) = size()?; // Get the number of columns and rows of the terminal window
 
         // Move cursor to the calculated position and print the text
@@ -82,43 +97,5 @@ impl GameState {
         for zombie in &mut self.zombies {
             zombie.update(key, self.screen_size);
         }
-    }
-
-    pub fn render_screen(&mut self, mut stdout: &Stdout) -> Result<()> {
-        stdout.execute(terminal::Clear(terminal::ClearType::All))?;
-
-        for y in 0..self.screen_size.y {
-            for x in 0..self.screen_size.x {
-                if (y == 0 || y == self.screen_size.y - 1)
-                    || (x == 0 || x == self.screen_size.x - 1)
-                {
-                    stdout
-                        .queue(cursor::MoveTo(y as u16, x as u16))?
-                        .queue(style::PrintStyledContent("█".grey()))?;
-                }
-            }
-        }
-
-        // zombies
-        for zombie in self.zombies.iter() {
-            stdout
-                .queue(cursor::MoveTo(
-                    zombie.position.y as u16,
-                    zombie.position.x as u16,
-                ))?
-                .queue(style::PrintStyledContent("z".green()))?;
-        }
-
-        // hero
-        stdout
-            .queue(cursor::MoveTo(
-                self.hero.position.y as u16,
-                self.hero.position.x as u16,
-            ))?
-            .queue(style::PrintStyledContent("h".red()))?;
-
-        // draw screen from queued buffer
-        stdout.flush()?;
-        Ok(())
     }
 }

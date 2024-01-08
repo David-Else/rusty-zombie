@@ -1,6 +1,7 @@
 mod hero;
 mod movement;
 mod random;
+mod render;
 mod world;
 mod zombie;
 use crossterm::{
@@ -51,24 +52,6 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut game_state = GameState::new(screensize);
     game_state.add_zombies(64);
 
-    fn tick(game_state: &mut GameState) -> Result<(), Box<dyn Error>> {
-        // WARNING hack!!! sending a direction when it is not needed
-        game_state.update_zombie(Direction::Up); // Check for collisions or any other periodic logic
-
-        // game_state.hero.update(direction, game_state.screen_size);
-
-        // render the updated game state
-        let mut stdout = io::stdout();
-        game_state.render_screen(&mut stdout)?;
-
-        // check for collisions
-        if game_state.detect_zombie_collision_hero() {
-            world::GameState::print_middle_screen(&mut stdout, "You are dead!")?;
-        }
-
-        Ok(())
-    }
-
     'gameloop: loop {
         let loop_start = Instant::now(); // Mark the beginning of the loop iteration
 
@@ -97,11 +80,10 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
 
         // Execute the tick function to render/update the game and check physics
-        tick(&mut game_state)?;
+        game_state.tick()?;
 
         // Calculate how long the loop iteration took
         let loop_duration = loop_start.elapsed();
-
         // If the loop finished faster than the frame duration, sleep the remaining time
         if loop_duration < frame_duration {
             std::thread::sleep(frame_duration - loop_duration);

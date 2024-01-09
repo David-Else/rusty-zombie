@@ -11,7 +11,7 @@ pub fn render_screen(
     stdout: &mut Stdout,
     zombies: &[Zombie],
     hero: &Hero,
-    screen_size: Point2d,
+    screen_size: &Point2d,
 ) -> Result<()> {
     stdout.execute(terminal::Clear(terminal::ClearType::All))?;
 

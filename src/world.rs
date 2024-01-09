@@ -72,7 +72,7 @@ impl GameState {
 
         // render the updated game state
         let mut stdout = io::stdout();
-        render_screen(&mut stdout, &self.zombies, &self.hero, self.screen_size)?;
+        render_screen(&mut stdout, &self.zombies, &self.hero, &self.screen_size)?;
 
         // check for collisions
         if self.detect_zombie_collision_hero() {

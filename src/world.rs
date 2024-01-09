@@ -9,12 +9,19 @@ use crate::{
 };
 use std::io::{self, Result};
 
+pub enum Screen {
+    StartMenu,
+    GamePlay,
+}
+
 // #[derive(Debug)]
 pub struct GameState {
     // fields representing the state of the game
     pub zombies: Vec<Zombie>,
     pub hero: Hero,
     pub screen_size: Point2d,
+    pub current_screen: Screen,
+    pub is_running: bool,
     observers: Vec<Box<dyn Observer>>,
 }
 
@@ -28,8 +35,16 @@ impl GameState {
                 y: screen_size.y / 2,
             }),
             screen_size,
+            current_screen: Screen::GamePlay,
+            is_running: true,
             observers: vec![],
         }
+    }
+
+    // to be called by the key handler
+    pub fn request_exit(&mut self) {
+        // Terminal::cleanup(); // Perform the terminal cleanup
+        self.is_running = false; // Set the running flag to false
     }
 
     pub fn register_observer(&mut self, observer: Box<dyn Observer>) {

@@ -49,24 +49,58 @@ pub fn render_screen(
     Ok(())
 }
 
-pub fn setup_terminal() -> Result<(io::Stdout, Point2d)> {
-    let mut stdout = io::stdout();
-    terminal::enable_raw_mode()?;
-    stdout.execute(EnterAlternateScreen)?;
-    stdout.execute(Hide)?;
-    let screensize = {
-        let (number_cols, number_rows) = size()?;
-        Point2d {
-            x: number_rows as usize,
-            y: number_cols as usize,
-        }
-    };
-    Ok((stdout, screensize))
+pub struct Terminal {
+    stdout: std::io::Stdout,
 }
 
-pub fn cleanup_terminal(mut stdout: io::Stdout) -> Result<()> {
-    stdout.execute(Show)?;
-    stdout.execute(LeaveAlternateScreen)?;
-    terminal::disable_raw_mode()?;
-    Ok(())
+impl Terminal {
+    // Constructor method to create a new Terminal instance and set up the terminal
+    pub fn new() -> io::Result<Self> {
+        let mut stdout = io::stdout();
+        terminal::enable_raw_mode()?;
+        stdout.execute(EnterAlternateScreen)?;
+        stdout.execute(Hide)?;
+        Ok(Self { stdout })
+    }
+
+    pub fn screen_size() -> Result<Point2d> {
+        let screensize = {
+            let (number_cols, number_rows) = size()?;
+            Point2d {
+                x: number_rows as usize,
+                y: number_cols as usize,
+            }
+        };
+        Ok(screensize)
+    }
+
+    // Cleanup method to restore the terminal to its previous state
+    pub fn cleanup(&mut self) -> io::Result<()> {
+        self.stdout.execute(Show)?;
+        self.stdout.execute(LeaveAlternateScreen)?;
+        terminal::disable_raw_mode()?;
+        Ok(())
+    }
 }
+
+// pub fn setup_terminal() -> Result<(io::Stdout, Point2d)> {
+//     let mut stdout = io::stdout();
+//     terminal::enable_raw_mode()?;
+//     stdout.execute(EnterAlternateScreen)?;
+//     stdout.execute(Hide)?;
+//     let screensize = {
+//         let (number_cols, number_rows) = size()?;
+//         Point2d {
+//             x: number_rows as usize,
+//             y: number_cols as usize,
+//         }
+//     };
+//     Ok((stdout, screensize))
+// }
+
+// pub fn cleanup_terminal(mut stdout: io::Stdout) -> Result<()> {
+//     stdout.execute(Show)?;
+//     stdout.execute(LeaveAlternateScreen)?;
+//     terminal::disable_raw_mode()?;
+//     Ok(())
+// }

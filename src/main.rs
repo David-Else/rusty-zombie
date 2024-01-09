@@ -6,9 +6,9 @@ mod render;
 mod types;
 mod world;
 mod zombie;
-use crossterm::event::{self, Event, KeyCode};
-use events::GameUI;
-use render::{cleanup_terminal, setup_terminal};
+use crossterm::event::{self, Event};
+use events::{GameEvent, GameUI, InputObserver};
+use render::Terminal;
 use std::error::Error;
 use std::time::{Duration, Instant};
 use types::Direction;
@@ -22,39 +22,27 @@ fn main() -> Result<(), Box<dyn Error>> {
     let input_poll_duration = Duration::from_millis(0);
 
     // setup the terminal and return the resulting stdout and screensize depending on the window dimenstions
-    let (stdout, screensize) = setup_terminal()?;
+    // let (stdout, screensize) = setup_terminal()?;
+    let mut terminal = Terminal::new().expect("Failed to initialize terminal");
+    let screensize = Terminal::screen_size().expect("Failed to initialize terminal");
 
     // create game state
     let mut game_state = GameState::new(screensize);
     game_state.add_zombies(64);
 
     // add observers
+    let input_observer = InputObserver;
     game_state.register_observer(Box::new(GameUI));
+    game_state.register_observer(Box::new(input_observer));
 
-    'gameloop: loop {
+    // game loop
+    while game_state.is_running {
         let loop_start = Instant::now(); // Mark the beginning of the loop iteration
 
+        // Check for keyboard input
         if event::poll(input_poll_duration)? {
-            // If there's an event, process it
             if let Event::Key(key_event) = event::read()? {
-                match key_event.code {
-                    KeyCode::Esc | KeyCode::Char('q') => {
-                        break 'gameloop;
-                    }
-                    KeyCode::Char('h') => {
-                        game_state.update_hero(Direction::Left);
-                    }
-                    KeyCode::Char('j') => {
-                        game_state.update_hero(Direction::Down);
-                    }
-                    KeyCode::Char('k') => {
-                        game_state.update_hero(Direction::Up);
-                    }
-                    KeyCode::Char('l') => {
-                        game_state.update_hero(Direction::Right);
-                    }
-                    _ => {}
-                }
+                game_state.notify_observers(GameEvent::KeyPress(key_event.code));
             }
         }
 
@@ -70,6 +58,6 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
     }
 
-    cleanup_terminal(stdout)?;
+    terminal.cleanup().expect("Failed to cleanup terminal");
     Ok(())
 }

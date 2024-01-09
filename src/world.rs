@@ -3,9 +3,9 @@ use crate::{
     hero::Hero,
     random::random_position_around_point,
     render::render_screen,
-    types::Entity,
+    types::{Entity, Point2d},
     zombie::Zombie,
-    Direction, Point2d,
+    Direction,
 };
 use std::io::{self, Result};
 

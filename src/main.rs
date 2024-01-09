@@ -6,15 +6,11 @@ mod render;
 mod types;
 mod world;
 mod zombie;
-use crossterm::{
-    cursor::{Hide, Show},
-    event::{self, Event, KeyCode},
-    terminal::{self, size, EnterAlternateScreen, LeaveAlternateScreen},
-    ExecutableCommand,
-};
+use crossterm::event::{self, Event, KeyCode};
+use render::{cleanup_terminal, setup_terminal};
+use std::error::Error;
 use std::time::{Duration, Instant};
-use std::{error::Error, io};
-use types::{Direction, Point2d};
+use types::Direction;
 use world::{GameState, GameUI};
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -24,23 +20,14 @@ fn main() -> Result<(), Box<dyn Error>> {
     // set the poll duration to zero for non-blocking input check
     let input_poll_duration = Duration::from_millis(0);
 
-    // setup terminal
-    let mut stdout = io::stdout();
-    terminal::enable_raw_mode()?;
-    stdout.execute(EnterAlternateScreen)?;
-    stdout.execute(Hide)?;
-    let screensize = {
-        let (number_cols, number_rows) = size()?;
-        Point2d {
-            x: number_rows as usize,
-            y: number_cols as usize,
-        }
-    };
+    // setup the terminal and return the resulting stdout and screensize depending on the window dimenstions
+    let (stdout, screensize) = setup_terminal()?;
 
     // create game state
     let mut game_state = GameState::new(screensize);
     game_state.add_zombies(64);
 
+    // add observers
     game_state.register_observer(Box::new(GameUI));
 
     'gameloop: loop {
@@ -75,16 +62,13 @@ fn main() -> Result<(), Box<dyn Error>> {
 
         // Calculate how long the loop iteration took
         let loop_duration = loop_start.elapsed();
+
         // If the loop finished faster than the frame duration, sleep the remaining time
         if loop_duration < frame_duration {
             std::thread::sleep(frame_duration - loop_duration);
         }
     }
 
-    // cleanup terminal
-    stdout.execute(Show)?;
-    stdout.execute(LeaveAlternateScreen)?;
-    terminal::disable_raw_mode()?;
-
+    cleanup_terminal(stdout)?;
     Ok(())
 }

@@ -1,11 +1,11 @@
-use crate::{hero::Hero, zombie::Zombie, Point2d};
+use crate::{hero::Hero, types::Point2d, zombie::Zombie};
 use crossterm::{
-    cursor,
+    cursor::{self, Hide, Show},
     style::{self, Stylize},
-    terminal::{self},
+    terminal::{self, size, EnterAlternateScreen, LeaveAlternateScreen},
     ExecutableCommand, QueueableCommand,
 };
-use std::io::{Result, Stdout, Write};
+use std::io::{self, Result, Stdout, Write};
 
 pub fn render_screen(
     stdout: &mut Stdout,
@@ -46,5 +46,27 @@ pub fn render_screen(
 
     // draw screen from queued buffer
     stdout.flush()?;
+    Ok(())
+}
+
+pub fn setup_terminal() -> Result<(io::Stdout, Point2d)> {
+    let mut stdout = io::stdout();
+    terminal::enable_raw_mode()?;
+    stdout.execute(EnterAlternateScreen)?;
+    stdout.execute(Hide)?;
+    let screensize = {
+        let (number_cols, number_rows) = size()?;
+        Point2d {
+            x: number_rows as usize,
+            y: number_cols as usize,
+        }
+    };
+    Ok((stdout, screensize))
+}
+
+pub fn cleanup_terminal(mut stdout: io::Stdout) -> Result<()> {
+    stdout.execute(Show)?;
+    stdout.execute(LeaveAlternateScreen)?;
+    terminal::disable_raw_mode()?;
     Ok(())
 }

@@ -7,11 +7,12 @@ mod types;
 mod world;
 mod zombie;
 use crossterm::event::{self, Event, KeyCode};
+use events::GameUI;
 use render::{cleanup_terminal, setup_terminal};
 use std::error::Error;
 use std::time::{Duration, Instant};
 use types::Direction;
-use world::{GameState, GameUI};
+use world::GameState;
 
 fn main() -> Result<(), Box<dyn Error>> {
     // set a fixed frame duration for each 'tick' of the game loop

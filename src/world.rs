@@ -13,11 +13,15 @@ pub struct GameUI;
 
 // This observer is stateless so it does not need to be mutable, the struct is empty
 impl Observer for GameUI {
-    fn on_notify(&self, event: &GameEvent) {
+    fn on_notify(&self, event: &GameEvent, game_state: &mut GameState) {
         match event {
             GameEvent::HeroKilled => {
                 // Update UI to show player death (e.g., a game over screen)
                 println!("Game Over!");
+                println!(
+                    "Hero is currently at position: {:?}",
+                    game_state.hero.position
+                );
             } // Handle any other UI-related events...
         }
     }
@@ -29,7 +33,7 @@ enum GameEvent {
 }
 
 pub trait Observer {
-    fn on_notify(&self, event: &GameEvent);
+    fn on_notify(&self, event: &GameEvent, game_state: &mut GameState);
 }
 
 // #[derive(Debug)]
@@ -37,7 +41,7 @@ pub struct GameState {
     // fields representing the state of the game
     pub zombies: Vec<Zombie>,
     pub hero: Hero,
-    screen_size: Point2d,
+    pub screen_size: Point2d,
     observers: Vec<Box<dyn Observer>>,
 }
 
@@ -58,11 +62,20 @@ impl GameState {
     pub fn register_observer(&mut self, observer: Box<dyn Observer>) {
         self.observers.push(observer);
     }
+    // Rust's rules prevent you from calling a method with `&mut self` while iterating over a collection of references (`&self.observers`).
+    // There's a rule that you cannot have multiple mutable references to the same data
+    pub fn notify_observers(&mut self, event: GameEvent) {
+        // Temporarily take ownership of observers using std::mem::take,
+        // which replaces self.observers with an empty vector
+        // and gives us the original vector to iterate over.
+        let mut observers = std::mem::take(&mut self.observers);
 
-    fn notify_observers(&self, event: GameEvent) {
-        for observer in &self.observers {
-            observer.on_notify(&event);
+        for observer in observers.iter_mut() {
+            observer.on_notify(&event, self);
         }
+
+        // Place the observers back into the game state.
+        self.observers = observers;
     }
 
     pub fn tick(&mut self) -> Result<()> {

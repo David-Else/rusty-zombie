@@ -1,7 +1,9 @@
+mod events;
 mod hero;
 mod movement;
 mod random;
 mod render;
+mod types;
 mod world;
 mod zombie;
 use crossterm::{
@@ -12,21 +14,8 @@ use crossterm::{
 };
 use std::time::{Duration, Instant};
 use std::{error::Error, io};
+use types::{Direction, Point2d};
 use world::{GameState, GameUI};
-
-#[derive(Debug, Clone, Copy)]
-pub enum Direction {
-    Up,
-    Down,
-    Left,
-    Right,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub struct Point2d {
-    pub x: usize,
-    pub y: usize,
-}
 
 fn main() -> Result<(), Box<dyn Error>> {
     // set a fixed frame duration for each 'tick' of the game loop

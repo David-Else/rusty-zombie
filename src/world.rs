@@ -1,17 +1,18 @@
 use crate::{
-    hero::Hero, random::random_position_around_point, render::render_screen, zombie::Zombie,
+    events::{GameEvent, Observer},
+    hero::Hero,
+    random::random_position_around_point,
+    render::render_screen,
+    types::Entity,
+    zombie::Zombie,
     Direction, Point2d,
 };
 use std::io::{self, Result};
 
-pub trait Entity {
-    fn update(&mut self, direction: Direction, screen_size: Point2d);
-    fn new(position: Point2d) -> Self;
-}
-
 pub struct GameUI;
 
 // This observer is stateless so it does not need to be mutable, the struct is empty
+// The GameState is mutable and is passed in, maybe we should only pass Entities?
 impl Observer for GameUI {
     fn on_notify(&self, event: &GameEvent, game_state: &mut GameState) {
         match event {
@@ -25,15 +26,6 @@ impl Observer for GameUI {
             } // Handle any other UI-related events...
         }
     }
-}
-
-enum GameEvent {
-    HeroKilled,
-    // Other game events...
-}
-
-pub trait Observer {
-    fn on_notify(&self, event: &GameEvent, game_state: &mut GameState);
 }
 
 // #[derive(Debug)]
@@ -85,11 +77,10 @@ impl GameState {
         // render the updated game state
         let mut stdout = io::stdout();
         render_screen(&mut stdout, &self.zombies, &self.hero, self.screen_size)?;
+
         // check for collisions
         if self.detect_zombie_collision_hero() {
-            // Notify observers that the hero has been killed
             self.notify_observers(GameEvent::HeroKilled);
-            // print_middle_screen(&mut stdout, "You are dead!")?;
         }
 
         Ok(())

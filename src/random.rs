@@ -1,4 +1,4 @@
-use crate::Point2d;
+use crate::types::Point2d;
 use rand::{thread_rng, Rng};
 
 pub fn random_usize_in_inclusive_range(min: usize, max: usize) -> usize {

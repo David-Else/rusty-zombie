@@ -1,7 +1,6 @@
 use crate::{
     movement::{move_down, move_left, move_right, move_up},
-    world::Entity,
-    Direction, Point2d,
+    types::{Direction, Entity, Point2d},
 };
 
 #[derive(Debug)]

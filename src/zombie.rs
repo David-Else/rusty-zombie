@@ -1,8 +1,7 @@
 use crate::{
     movement::{move_down, move_left, move_right, move_up},
     random::{random_direction, random_usize_in_inclusive_range},
-    world::Entity,
-    Direction, Point2d,
+    types::{Direction, Entity, Point2d},
 };
 
 #[derive(Debug)]

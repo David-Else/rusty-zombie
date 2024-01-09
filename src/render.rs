@@ -2,7 +2,7 @@ use crate::{hero::Hero, zombie::Zombie, Point2d};
 use crossterm::{
     cursor,
     style::{self, Stylize},
-    terminal::{self, size},
+    terminal::{self},
     ExecutableCommand, QueueableCommand,
 };
 use std::io::{Result, Stdout, Write};
@@ -46,17 +46,5 @@ pub fn render_screen(
 
     // draw screen from queued buffer
     stdout.flush()?;
-    Ok(())
-}
-
-pub fn print_middle_screen(stdout: &mut Stdout, text: &str) -> Result<()> {
-    let (cols, rows) = size()?; // Get the number of columns and rows of the terminal window
-
-    // Move cursor to the calculated position and print the text
-    stdout
-        .queue(cursor::MoveTo(cols / 2, rows / 2))?
-        .queue(crossterm::style::Print(text))? // Print the text
-        .flush()?; // Flush the stdout to immediately output the text
-
     Ok(())
 }

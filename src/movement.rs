@@ -1,4 +1,4 @@
-use crate::Point2d;
+use crate::types::Point2d;
 
 pub fn can_move_up(position: Point2d) -> bool {
     position.x > 0

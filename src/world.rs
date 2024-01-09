@@ -1,8 +1,5 @@
 use crate::{
-    hero::Hero,
-    random::random_position_around_point,
-    render::{print_middle_screen, render_screen},
-    zombie::Zombie,
+    hero::Hero, random::random_position_around_point, render::render_screen, zombie::Zombie,
     Direction, Point2d,
 };
 use std::io::{self, Result};
@@ -12,12 +9,36 @@ pub trait Entity {
     fn new(position: Point2d) -> Self;
 }
 
-#[derive(Debug)]
+pub struct GameUI;
+
+// This observer is stateless so it does not need to be mutable, the struct is empty
+impl Observer for GameUI {
+    fn on_notify(&self, event: &GameEvent) {
+        match event {
+            GameEvent::HeroKilled => {
+                // Update UI to show player death (e.g., a game over screen)
+                println!("Game Over!");
+            } // Handle any other UI-related events...
+        }
+    }
+}
+
+enum GameEvent {
+    HeroKilled,
+    // Other game events...
+}
+
+pub trait Observer {
+    fn on_notify(&self, event: &GameEvent);
+}
+
+// #[derive(Debug)]
 pub struct GameState {
     // fields representing the state of the game
     pub zombies: Vec<Zombie>,
     pub hero: Hero,
     screen_size: Point2d,
+    observers: Vec<Box<dyn Observer>>,
 }
 
 impl GameState {
@@ -30,6 +51,17 @@ impl GameState {
                 y: screen_size.y / 2,
             }),
             screen_size,
+            observers: vec![],
+        }
+    }
+
+    pub fn register_observer(&mut self, observer: Box<dyn Observer>) {
+        self.observers.push(observer);
+    }
+
+    fn notify_observers(&self, event: GameEvent) {
+        for observer in &self.observers {
+            observer.on_notify(&event);
         }
     }
 
@@ -42,7 +74,9 @@ impl GameState {
         render_screen(&mut stdout, &self.zombies, &self.hero, self.screen_size)?;
         // check for collisions
         if self.detect_zombie_collision_hero() {
-            print_middle_screen(&mut stdout, "You are dead!")?;
+            // Notify observers that the hero has been killed
+            self.notify_observers(GameEvent::HeroKilled);
+            // print_middle_screen(&mut stdout, "You are dead!")?;
         }
 
         Ok(())

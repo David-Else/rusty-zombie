@@ -12,7 +12,7 @@ use crossterm::{
 };
 use std::time::{Duration, Instant};
 use std::{error::Error, io};
-use world::GameState;
+use world::{GameState, GameUI};
 
 #[derive(Debug, Clone, Copy)]
 pub enum Direction {
@@ -51,6 +51,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     // create game state
     let mut game_state = GameState::new(screensize);
     game_state.add_zombies(64);
+
+    game_state.register_observer(Box::new(GameUI));
 
     'gameloop: loop {
         let loop_start = Instant::now(); // Mark the beginning of the loop iteration

@@ -5,14 +5,10 @@ use crossterm::{
     terminal::{self, size, EnterAlternateScreen, LeaveAlternateScreen},
     ExecutableCommand, QueueableCommand,
 };
-use std::io::{self, Result, Stdout, Write};
+use std::io::{self, Result, Write};
 
-pub fn render_screen(
-    stdout: &mut Stdout,
-    zombies: &[Zombie],
-    hero: &Hero,
-    screen_size: &Point2d,
-) -> Result<()> {
+pub fn render_screen(zombies: &[Zombie], hero: &Hero, screen_size: &Point2d) -> Result<()> {
+    let mut stdout = io::stdout(); // Get the standard output stream
     stdout.execute(terminal::Clear(terminal::ClearType::All))?;
 
     // draw borders
@@ -82,25 +78,3 @@ impl Terminal {
         Ok(())
     }
 }
-
-// pub fn setup_terminal() -> Result<(io::Stdout, Point2d)> {
-//     let mut stdout = io::stdout();
-//     terminal::enable_raw_mode()?;
-//     stdout.execute(EnterAlternateScreen)?;
-//     stdout.execute(Hide)?;
-//     let screensize = {
-//         let (number_cols, number_rows) = size()?;
-//         Point2d {
-//             x: number_rows as usize,
-//             y: number_cols as usize,
-//         }
-//     };
-//     Ok((stdout, screensize))
-// }
-
-// pub fn cleanup_terminal(mut stdout: io::Stdout) -> Result<()> {
-//     stdout.execute(Show)?;
-//     stdout.execute(LeaveAlternateScreen)?;
-//     terminal::disable_raw_mode()?;
-//     Ok(())
-// }

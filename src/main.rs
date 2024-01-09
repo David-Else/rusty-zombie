@@ -22,7 +22,6 @@ fn main() -> Result<(), Box<dyn Error>> {
     let input_poll_duration = Duration::from_millis(0);
 
     // setup the terminal and return the resulting stdout and screensize depending on the window dimenstions
-    // let (stdout, screensize) = setup_terminal()?;
     let mut terminal = Terminal::new().expect("Failed to initialize terminal");
     let screensize = Terminal::screen_size().expect("Failed to initialize terminal");
 

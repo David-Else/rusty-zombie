@@ -71,8 +71,7 @@ impl GameState {
         self.update_zombie(Direction::Up); // Check for collisions or any other periodic logic
 
         // render the updated game state
-        let mut stdout = io::stdout();
-        render_screen(&mut stdout, &self.zombies, &self.hero, &self.screen_size)?;
+        render_screen(&self.zombies, &self.hero, &self.screen_size)?;
 
         // check for collisions
         if self.detect_zombie_collision_hero() {

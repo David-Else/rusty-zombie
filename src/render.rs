@@ -59,14 +59,12 @@ impl Terminal {
         stdout.execute(Hide)?;
 
         let (number_cols, number_rows) = size()?;
-        let screen_size = Point2d {
-            x: number_rows as usize,
-            y: number_cols as usize,
-        };
-
         Ok(Self {
             stdout,
-            screen_size,
+            screen_size: Point2d {
+                x: number_rows as usize,
+                y: number_cols as usize,
+            },
         })
     }
 

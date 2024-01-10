@@ -23,7 +23,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     // setup the terminal and return the resulting stdout and screensize depending on the window dimenstions
     let mut terminal = Terminal::new().expect("Failed to initialize terminal");
-    let screensize = Terminal::screen_size().expect("Failed to initialize terminal");
+    let screensize = terminal.screen_size;
 
     // create game state
     let mut game_state = GameState::new(screensize);

@@ -47,6 +47,7 @@ pub fn render_screen(zombies: &[Zombie], hero: &Hero, screen_size: &Point2d) -> 
 
 pub struct Terminal {
     stdout: std::io::Stdout,
+    pub screen_size: Point2d,
 }
 
 impl Terminal {
@@ -56,18 +57,17 @@ impl Terminal {
         terminal::enable_raw_mode()?;
         stdout.execute(EnterAlternateScreen)?;
         stdout.execute(Hide)?;
-        Ok(Self { stdout })
-    }
 
-    pub fn screen_size() -> Result<Point2d> {
-        let screensize = {
-            let (number_cols, number_rows) = size()?;
-            Point2d {
-                x: number_rows as usize,
-                y: number_cols as usize,
-            }
+        let (number_cols, number_rows) = size()?;
+        let screen_size = Point2d {
+            x: number_rows as usize,
+            y: number_cols as usize,
         };
-        Ok(screensize)
+
+        Ok(Self {
+            stdout,
+            screen_size,
+        })
     }
 
     // Cleanup method to restore the terminal to its previous state

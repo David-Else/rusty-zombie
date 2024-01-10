@@ -7,7 +7,7 @@ use crate::{
     zombie::Zombie,
     Direction,
 };
-use std::io::{self, Result};
+use std::io::Result;
 
 pub enum Screen {
     StartMenu,
@@ -39,12 +39,6 @@ impl GameState {
             is_running: true,
             observers: vec![],
         }
-    }
-
-    // to be called by the key handler
-    pub fn request_exit(&mut self) {
-        // Terminal::cleanup(); // Perform the terminal cleanup
-        self.is_running = false; // Set the running flag to false
     }
 
     pub fn register_observer(&mut self, observer: Box<dyn Observer>) {

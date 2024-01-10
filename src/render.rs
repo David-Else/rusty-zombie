@@ -19,13 +19,13 @@ pub fn render_screen(
     match current_screen {
         Screen::StartMenu => draw_start_menu(screen_size, &mut stdout)?,
         Screen::GamePlay => {
-            draw_hero(&mut stdout, hero)?;
+            draw_hero(hero, &mut stdout)?;
             draw_zombie(zombies, &mut stdout)?;
             draw_borders(screen_size, &mut stdout)?;
         }
     }
-    // draw screen from queued buffer
-    stdout.flush()?;
+
+    stdout.flush()?; // draw screen from queued buffer
     Ok(())
 }
 
@@ -39,7 +39,7 @@ fn draw_start_menu(screen_size: &Point2d, stdout: &mut io::Stdout) -> Result<()>
     Ok(())
 }
 
-fn draw_hero(stdout: &mut io::Stdout, hero: &Hero) -> Result<()> {
+fn draw_hero(hero: &Hero, stdout: &mut io::Stdout) -> Result<()> {
     stdout
         .queue(cursor::MoveTo(
             hero.position.y as u16,

@@ -10,7 +10,6 @@ pub enum GameEvent {
     // Other game events...
 }
 
-// is this a good idea to have it here?
 pub trait Observer {
     fn on_notify(&self, event: &GameEvent, game_state: &mut GameState);
 }
@@ -67,13 +66,10 @@ impl InputObserver {
 impl Observer for InputObserver {
     fn on_notify(&self, event: &GameEvent, game_state: &mut GameState) {
         match event {
-            GameEvent::KeyPress(key_code) => {
-                match game_state.current_screen {
-                    Screen::StartMenu => self.handle_start_menu_keys(*key_code, game_state),
-                    Screen::GamePlay => self.handle_gameplay_keys(*key_code, game_state),
-                    // ... handle other screens if needed ...
-                }
-            }
+            GameEvent::KeyPress(key_code) => match game_state.current_screen {
+                Screen::StartMenu => self.handle_start_menu_keys(*key_code, game_state),
+                Screen::GamePlay => self.handle_gameplay_keys(*key_code, game_state),
+            },
             _ => {}
         }
     }

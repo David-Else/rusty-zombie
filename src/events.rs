@@ -37,12 +37,14 @@ impl Observer for GameUI {
 pub struct InputObserver;
 impl InputObserver {
     // These are private methods for handling specific key presses on different screens.
-    fn handle_start_menu_keys(&self, key_code: KeyCode) {
+    fn handle_start_menu_keys(&self, key_code: KeyCode, game_state: &mut GameState) {
         match key_code {
+            KeyCode::Char('q') => {
+                game_state.is_running = false;
+            }
             KeyCode::Char('s') => {
                 println!("Starting the game...");
-                // transition game state to gameplay
-                // game_state.current_screen = Screen::GamePlay;
+                game_state.current_screen = Screen::GamePlay;
             }
             _ => {}
         }
@@ -67,7 +69,7 @@ impl Observer for InputObserver {
         match event {
             GameEvent::KeyPress(key_code) => {
                 match game_state.current_screen {
-                    Screen::StartMenu => self.handle_start_menu_keys(*key_code),
+                    Screen::StartMenu => self.handle_start_menu_keys(*key_code, game_state),
                     Screen::GamePlay => self.handle_gameplay_keys(*key_code, game_state),
                     // ... handle other screens if needed ...
                 }

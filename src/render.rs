@@ -1,4 +1,4 @@
-use crate::{hero::Hero, types::Point2d, zombie::Zombie};
+use crate::{hero::Hero, types::Point2d, world::Screen, zombie::Zombie};
 use crossterm::{
     cursor::{self, Hide, Show},
     style::{self, Stylize},
@@ -7,11 +7,61 @@ use crossterm::{
 };
 use std::io::{self, Result, Write};
 
-pub fn render_screen(zombies: &[Zombie], hero: &Hero, screen_size: &Point2d) -> Result<()> {
+pub fn render_screen(
+    zombies: &[Zombie],
+    hero: &Hero,
+    screen_size: &Point2d,
+    current_screen: &Screen,
+) -> Result<()> {
     let mut stdout = io::stdout(); // Get the standard output stream
     stdout.execute(terminal::Clear(terminal::ClearType::All))?;
 
-    // draw borders
+    match current_screen {
+        Screen::StartMenu => draw_start_menu(screen_size, &mut stdout)?,
+        Screen::GamePlay => {
+            draw_hero(&mut stdout, hero)?;
+            draw_zombie(zombies, &mut stdout)?;
+            draw_borders(screen_size, &mut stdout)?;
+        }
+    }
+    // draw screen from queued buffer
+    stdout.flush()?;
+    Ok(())
+}
+
+fn draw_start_menu(screen_size: &Point2d, stdout: &mut io::Stdout) -> Result<()> {
+    let message = "Welcome to Zombie Attack, press s to start or q to quit";
+    let start_column = (screen_size.y as u16) / 2 - (message.chars().count() as u16) / 2;
+    let start_row = (screen_size.x as u16) / 2;
+    stdout
+        .queue(cursor::MoveTo(start_column, start_row))?
+        .queue(style::PrintStyledContent(message.green()))?;
+    Ok(())
+}
+
+fn draw_hero(stdout: &mut io::Stdout, hero: &Hero) -> Result<()> {
+    stdout
+        .queue(cursor::MoveTo(
+            hero.position.y as u16,
+            hero.position.x as u16,
+        ))?
+        .queue(style::PrintStyledContent("h".red()))?;
+    Ok(())
+}
+
+fn draw_zombie(zombies: &[Zombie], stdout: &mut io::Stdout) -> Result<()> {
+    for zombie in zombies.iter() {
+        stdout
+            .queue(cursor::MoveTo(
+                zombie.position.y as u16,
+                zombie.position.x as u16,
+            ))?
+            .queue(style::PrintStyledContent("z".green()))?;
+    }
+    Ok(())
+}
+
+fn draw_borders(screen_size: &Point2d, stdout: &mut io::Stdout) -> Result<()> {
     for y in 0..screen_size.y {
         for x in 0..screen_size.x {
             if (y == 0 || y == screen_size.y - 1) || (x == 0 || x == screen_size.x - 1) {
@@ -21,27 +71,6 @@ pub fn render_screen(zombies: &[Zombie], hero: &Hero, screen_size: &Point2d) -> 
             }
         }
     }
-
-    // draw zombies
-    for zombie in zombies.iter() {
-        stdout
-            .queue(cursor::MoveTo(
-                zombie.position.y as u16,
-                zombie.position.x as u16,
-            ))?
-            .queue(style::PrintStyledContent("z".green()))?;
-    }
-
-    // draw hero
-    stdout
-        .queue(cursor::MoveTo(
-            hero.position.y as u16,
-            hero.position.x as u16,
-        ))?
-        .queue(style::PrintStyledContent("h".red()))?;
-
-    // draw screen from queued buffer
-    stdout.flush()?;
     Ok(())
 }
 

@@ -35,7 +35,7 @@ impl GameState {
                 y: screen_size.y / 2,
             }),
             screen_size,
-            current_screen: Screen::GamePlay,
+            current_screen: Screen::StartMenu,
             is_running: true,
             observers: vec![],
         }
@@ -65,7 +65,12 @@ impl GameState {
         self.update_zombie(Direction::Up); // Check for collisions or any other periodic logic
 
         // render the updated game state
-        render_screen(&self.zombies, &self.hero, &self.screen_size)?;
+        render_screen(
+            &self.zombies,
+            &self.hero,
+            &self.screen_size,
+            &self.current_screen,
+        )?;
 
         // check for collisions
         if self.detect_zombie_collision_hero() {

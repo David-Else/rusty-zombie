@@ -18,5 +18,5 @@ pub trait Entity {
 }
 
 pub trait Movable {
-    fn move_in_direction(&mut self, screen_size: Point2d);
+    fn update_position(&mut self, screen_size: Point2d);
 }

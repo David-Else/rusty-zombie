@@ -49,24 +49,17 @@ impl InputObserver {
         }
     }
 
-    fn handle_fire_bullet(&self, game_state: &mut GameState) {
-        // Check if there are no bullets - to ensure only one bullet is fired per press.
-        game_state.add_bullet();
-        // if game_state.bullets.is_empty() {
-        //     game_state.add_bullet();
-        // }
-    }
-
     fn handle_gameplay_keys(&self, key_code: KeyCode, game_state: &mut GameState) {
         match key_code {
             KeyCode::Char('q') => {
                 game_state.is_running = false;
             }
+            // hero is only updated on a key press, unlike other entities
             KeyCode::Char('k') => game_state.update_hero(Direction::Up),
             KeyCode::Char('j') => game_state.update_hero(Direction::Down),
             KeyCode::Char('h') => game_state.update_hero(Direction::Left),
             KeyCode::Char('l') => game_state.update_hero(Direction::Right),
-            KeyCode::Char('f') => self.handle_fire_bullet(game_state),
+            KeyCode::Char('f') => game_state.add_bullet(),
             _ => {} // Do nothing for all other keys
         }
     }

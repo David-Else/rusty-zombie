@@ -6,8 +6,8 @@ use crate::{
 #[derive(Debug)]
 pub struct Bullet {
     pub position: Point2d,
-    move_every_n_ticks: usize,
-    pub direction: Direction,
+    ticks_between_moves: usize,
+    direction: Direction,
     tick_counter: usize,
 }
 
@@ -15,7 +15,7 @@ impl Bullet {
     pub fn new(position: Point2d, direction: Direction) -> Self {
         Self {
             position,
-            move_every_n_ticks: 25,
+            ticks_between_moves: 25,
             direction,
             tick_counter: 0,
         }
@@ -23,15 +23,15 @@ impl Bullet {
 
     pub fn update(&mut self, screen_size: Point2d) {
         self.tick_counter += 1;
-        if self.tick_counter >= self.move_every_n_ticks {
-            self.move_in_direction(screen_size);
+        if self.tick_counter >= self.ticks_between_moves {
+            self.update_position(screen_size);
         }
     }
 }
 
 impl Movable for Bullet {
-    fn move_in_direction(&mut self, screen_size: Point2d) {
-        if self.tick_counter >= self.move_every_n_ticks {
+    fn update_position(&mut self, screen_size: Point2d) {
+        if self.tick_counter >= self.ticks_between_moves {
             self.position = match self.direction {
                 Direction::Up => move_up(self.position),
                 Direction::Down => move_down(self.position, screen_size),

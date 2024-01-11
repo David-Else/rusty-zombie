@@ -7,29 +7,28 @@ use crate::{
 #[derive(Debug)]
 pub struct Zombie {
     pub position: Point2d,
-    move_every_n_ticks: usize,
+    ticks_between_moves: usize,
     tick_counter: usize,
 }
 
 impl Entity for Zombie {
-    // associated (static) function, used as constructor
     fn new(position: Point2d) -> Self {
         Self {
             position,
-            move_every_n_ticks: random_usize_in_inclusive_range(40, 50),
+            ticks_between_moves: random_usize_in_inclusive_range(40, 50),
             tick_counter: 0,
         }
     }
 
     fn update(&mut self, screen_size: Point2d) {
-        self.move_in_direction(screen_size);
+        self.update_position(screen_size);
     }
 }
 
 impl Movable for Zombie {
-    fn move_in_direction(&mut self, screen_size: Point2d) {
+    fn update_position(&mut self, screen_size: Point2d) {
         self.tick_counter += 1;
-        if self.tick_counter >= self.move_every_n_ticks {
+        if self.tick_counter >= self.ticks_between_moves {
             // Generate a random direction for the zombie to move in
             let direction = match random_direction() {
                 0 => Direction::Up,
@@ -47,7 +46,6 @@ impl Movable for Zombie {
                 Direction::Left => move_left(self.position),
             };
 
-            // Reset the counter after the zombie moves
             self.tick_counter = 0;
         }
     }

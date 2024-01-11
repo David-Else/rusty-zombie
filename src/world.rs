@@ -64,9 +64,7 @@ impl GameState {
     }
 
     pub fn tick(&mut self) -> Result<()> {
-        // WARNING hack!!! sending a direction when it is not needed
-        self.update_zombie(Direction::Up); // Check for collisions or any other periodic logic
-
+        self.update_zombie(); // Check for collisions or any other periodic logic
         self.update_bullets();
 
         // render the updated game state
@@ -111,7 +109,7 @@ impl GameState {
         self.hero.update(self.screen_size); // Then update hero's position based on the new direction
     }
 
-    pub fn update_zombie(&mut self, key: Direction) {
+    pub fn update_zombie(&mut self) {
         for zombie in &mut self.zombies {
             zombie.update(self.screen_size);
         }

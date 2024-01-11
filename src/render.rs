@@ -20,7 +20,8 @@ pub fn render_screen(
     match current_screen {
         Screen::StartMenu => draw_start_menu(screen_size, &mut stdout)?,
         Screen::GamePlay => {
-            draw_debug(&bullets[0], &mut stdout)?;
+            // when game starts there are no bullets, so it fails
+            // draw_debug(&bullets[0], &mut stdout)?;
             draw_hero(hero, &mut stdout)?;
             draw_bullet(bullets, &mut stdout)?;
             draw_zombie(zombies, &mut stdout)?;

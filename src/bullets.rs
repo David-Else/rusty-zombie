@@ -29,7 +29,7 @@ impl Bullet {
                 Direction::Down => self.position = move_down(self.position, screen_size),
                 Direction::Right => self.position = move_right(self.position, screen_size),
                 Direction::Left => self.position = move_left(self.position),
-                _ => println!("Hero cannot move in this direction!"),
+                _ => println!("Bullet cannot move in this direction!"),
             };
             self.tick_counter = 0; // Reset the counter after the move
         }

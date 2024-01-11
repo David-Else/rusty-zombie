@@ -5,7 +5,10 @@ use crossterm::{
     terminal::{self, size, EnterAlternateScreen, LeaveAlternateScreen},
     ExecutableCommand, QueueableCommand,
 };
-use std::io::{self, Result, Write};
+use std::{
+    fmt::Display,
+    io::{self, Result, Write},
+};
 
 pub fn render_screen(
     zombies: &[Zombie],
@@ -20,17 +23,36 @@ pub fn render_screen(
     match current_screen {
         Screen::StartMenu => draw_start_menu(screen_size, &mut stdout)?,
         Screen::GamePlay => {
-            // when game starts there are no bullets, so it fails
             // draw_debug(&bullets[0], &mut stdout)?;
             draw_hero(hero, &mut stdout)?;
-            draw_bullet(bullets, &mut stdout)?;
-            draw_zombie(zombies, &mut stdout)?;
+            for bullet in bullets {
+                draw_entity(&"b", &bullet.position, &mut stdout, style::Color::Yellow)?;
+            }
+            for zombie in zombies {
+                draw_entity(&"z", &zombie.position, &mut stdout, style::Color::Green)?;
+            }
             draw_borders(screen_size, &mut stdout)?;
         }
         Screen::GameOver => draw_game_over(screen_size, &mut stdout)?,
     }
 
     stdout.flush()?; // draw screen from queued buffer
+    Ok(())
+}
+
+// In the refactored `draw_entity` function, you still have the flexibility to pass in a string literal (which implements `Display`)
+// and apply styling as you did before. But now, you could also use other types that implement the `Display` trait, not just string literals.
+// You pass the desired style as a parameter, which allows you to style any entity dynamically based on game state, entity type, or other conditions.
+// Display types include collections and custom types and enums etc
+fn draw_entity<T: Display>(
+    entity: &T,
+    position: &Point2d,
+    stdout: &mut io::Stdout,
+    color: style::Color,
+) -> Result<()> {
+    stdout
+        .queue(cursor::MoveTo(position.y as u16, position.x as u16))?
+        .queue(style::PrintStyledContent(entity.to_string().with(color)))?;
     Ok(())
 }
 
@@ -64,36 +86,12 @@ fn draw_hero(hero: &Hero, stdout: &mut io::Stdout) -> Result<()> {
     Ok(())
 }
 
-fn draw_debug(object: &Bullet, stdout: &mut io::Stdout) -> Result<()> {
-    stdout
-        .queue(cursor::MoveTo(10, 1))?
-        .queue(Print(format!("{:?}", object)))?;
-    Ok(())
-}
-
-fn draw_bullet(bullets: &[Bullet], stdout: &mut io::Stdout) -> Result<()> {
-    for bullet in bullets.iter() {
-        stdout
-            .queue(cursor::MoveTo(
-                bullet.position.y as u16,
-                bullet.position.x as u16,
-            ))?
-            .queue(style::PrintStyledContent("b".yellow()))?;
-    }
-    Ok(())
-}
-
-fn draw_zombie(zombies: &[Zombie], stdout: &mut io::Stdout) -> Result<()> {
-    for zombie in zombies.iter() {
-        stdout
-            .queue(cursor::MoveTo(
-                zombie.position.y as u16,
-                zombie.position.x as u16,
-            ))?
-            .queue(style::PrintStyledContent("z".green()))?;
-    }
-    Ok(())
-}
+// fn draw_debug(object: &Bullet, stdout: &mut io::Stdout) -> Result<()> {
+//     stdout
+//         .queue(cursor::MoveTo(10, 1))?
+//         .queue(Print(format!("{:?}", object)))?;
+//     Ok(())
+// }
 
 fn draw_borders(screen_size: &Point2d, stdout: &mut io::Stdout) -> Result<()> {
     for y in 0..screen_size.y {

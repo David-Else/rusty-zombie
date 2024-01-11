@@ -24,28 +24,21 @@ impl Bullet {
     pub fn update(&mut self, screen_size: Point2d) {
         self.tick_counter += 1;
         if self.tick_counter >= self.move_every_n_ticks {
-            self.move_in_direction(Some(self.direction), screen_size);
+            self.move_in_direction(screen_size);
         }
     }
 }
 
 impl Movable for Bullet {
-    // ...
-    fn move_in_direction(&mut self, direction: Option<Direction>, screen_size: Point2d) {
-        // For `Bullet`, `direction` should always be `Some`.
-        if let Some(dir) = direction {
-            if self.tick_counter >= self.move_every_n_ticks {
-                self.position = match self.direction {
-                    Direction::Up => move_up(self.position),
-                    Direction::Down => move_down(self.position, screen_size),
-                    Direction::Right => move_right(self.position, screen_size),
-                    Direction::Left => move_left(self.position),
-                };
-                self.tick_counter = 0; // Reset the counter after the move
-            } // Existing movement logic using `dir`.
-        } else {
-            // Handle the None case or assume it will never happen.
-            unreachable!("Bullet requires a direction to move.");
+    fn move_in_direction(&mut self, screen_size: Point2d) {
+        if self.tick_counter >= self.move_every_n_ticks {
+            self.position = match self.direction {
+                Direction::Up => move_up(self.position),
+                Direction::Down => move_down(self.position, screen_size),
+                Direction::Right => move_right(self.position, screen_size),
+                Direction::Left => move_left(self.position),
+            };
+            self.tick_counter = 0; // Reset the counter after the move
         }
     }
 }

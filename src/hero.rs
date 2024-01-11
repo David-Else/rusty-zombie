@@ -18,23 +18,18 @@ impl Entity for Hero {
     }
 
     fn update(&mut self, screen_size: Point2d) {
-        self.move_in_direction(Some(self.direction), screen_size);
+        self.move_in_direction(screen_size); // Now it doesn't take a direction parameter
     }
 }
 
 impl Movable for Hero {
-    fn move_in_direction(&mut self, direction: Option<Direction>, screen_size: Point2d) {
-        // For `Hero`, `direction` should always be `Some`.
-        if let Some(dir) = direction {
-            match dir {
-                Direction::Up => self.position = move_up(self.position),
-                Direction::Down => self.position = move_down(self.position, screen_size),
-                Direction::Right => self.position = move_right(self.position, screen_size),
-                Direction::Left => self.position = move_left(self.position),
-            }
-        } else {
-            // Handle the None case or assume it will never happen.
-            unreachable!("Hero requires a direction to move.");
-        }
+    fn move_in_direction(&mut self, screen_size: Point2d) {
+        self.position = match self.direction {
+            Direction::Up => move_up(self.position),
+            Direction::Down => move_down(self.position, screen_size),
+            Direction::Right => move_right(self.position, screen_size),
+            Direction::Left => move_left(self.position),
+            // No default case needed since we are covering all variants of the Direction enum
+        };
     }
 }

@@ -27,6 +27,7 @@ pub fn render_screen(
             draw_zombie(zombies, &mut stdout)?;
             draw_borders(screen_size, &mut stdout)?;
         }
+        Screen::GameOver => draw_game_over(screen_size, &mut stdout)?,
     }
 
     stdout.flush()?; // draw screen from queued buffer
@@ -40,6 +41,16 @@ fn draw_start_menu(screen_size: &Point2d, stdout: &mut io::Stdout) -> Result<()>
     stdout
         .queue(cursor::MoveTo(start_column, start_row))?
         .queue(style::PrintStyledContent(message.green()))?;
+    Ok(())
+}
+
+fn draw_game_over(screen_size: &Point2d, stdout: &mut io::Stdout) -> Result<()> {
+    let message = "You are dead! Game Over. s to start again or q to quit";
+    let start_column = (screen_size.y as u16) / 2 - (message.chars().count() as u16) / 2;
+    let start_row = (screen_size.x as u16) / 2;
+    stdout
+        .queue(cursor::MoveTo(start_column, start_row))?
+        .queue(style::PrintStyledContent(message.red()))?;
     Ok(())
 }
 

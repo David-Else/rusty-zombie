@@ -13,6 +13,7 @@ use std::io::Result;
 pub enum Screen {
     StartMenu,
     GamePlay,
+    GameOver,
 }
 
 // #[derive(Debug)]

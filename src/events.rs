@@ -1,3 +1,5 @@
+use std::{thread, time::Duration};
+
 use crate::{
     types::Direction,
     world::{GameState, Screen},
@@ -21,12 +23,7 @@ impl Observer for GameUI {
     fn on_notify(&self, event: &GameEvent, game_state: &mut GameState) {
         match event {
             GameEvent::HeroKilled => {
-                // Update UI to show player death (e.g., a game over screen)
-                println!("Game Over!");
-                println!(
-                    "Hero is currently at position: {:?}",
-                    game_state.hero.position
-                );
+                game_state.current_screen = Screen::GameOver;
             }
             GameEvent::KeyPress(_) => {} // Handle any other UI-related events...
         }
@@ -63,6 +60,19 @@ impl InputObserver {
             _ => {} // Do nothing for all other keys
         }
     }
+
+    fn handle_game_over_keys(&self, key_code: KeyCode, game_state: &mut GameState) {
+        match key_code {
+            KeyCode::Char('q') => {
+                game_state.is_running = false;
+            }
+            KeyCode::Char('s') => {
+                println!("Starting the game...");
+                game_state.current_screen = Screen::GamePlay;
+            }
+            _ => {}
+        }
+    }
 }
 
 impl Observer for InputObserver {
@@ -71,6 +81,7 @@ impl Observer for InputObserver {
             GameEvent::KeyPress(key_code) => match game_state.current_screen {
                 Screen::StartMenu => self.handle_start_menu_keys(*key_code, game_state),
                 Screen::GamePlay => self.handle_gameplay_keys(*key_code, game_state),
+                Screen::GameOver => self.handle_game_over_keys(*key_code, game_state),
             },
             _ => {}
         }

@@ -1,7 +1,7 @@
 use crate::{bullets::Bullet, hero::Hero, types::Point2d, world::Screen, zombie::Zombie};
 use crossterm::{
     cursor::{self, Hide, Show},
-    style::{self, Print, Stylize},
+    style::{self, Stylize},
     terminal::{self, size, EnterAlternateScreen, LeaveAlternateScreen},
     ExecutableCommand, QueueableCommand,
 };
@@ -43,7 +43,7 @@ pub fn render_screen(
 // In the refactored `draw_entity` function, you still have the flexibility to pass in a string literal (which implements `Display`)
 // and apply styling as you did before. But now, you could also use other types that implement the `Display` trait, not just string literals.
 // You pass the desired style as a parameter, which allows you to style any entity dynamically based on game state, entity type, or other conditions.
-// Display types include collections and custom types and enums etc
+// Display types include collections and custom types and enums etc, they can be turned into strings to print
 fn draw_entity<T: Display>(
     entity: &T,
     position: &Point2d,

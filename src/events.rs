@@ -1,5 +1,3 @@
-use std::{thread, time::Duration};
-
 use crate::{
     types::Direction,
     world::{GameState, Screen},

@@ -6,14 +6,19 @@ use crate::{
 #[derive(Debug)]
 pub struct Hero {
     pub position: Point2d,
+    pub direction: Direction,
 }
 
 impl Entity for Hero {
     fn new(position: Point2d) -> Self {
-        Self { position }
+        Self {
+            position,
+            direction: Direction::Up,
+        }
     }
 
     fn update(&mut self, direction: Direction, screen_size: Point2d) {
+        self.direction = direction;
         match direction {
             Direction::Up => self.position = move_up(self.position),
             Direction::Down => self.position = move_down(self.position, screen_size),

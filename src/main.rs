@@ -1,3 +1,4 @@
+mod bullets;
 mod events;
 mod hero;
 mod movement;
@@ -28,6 +29,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     // create game state
     let mut game_state = GameState::new(screensize);
     game_state.add_zombies(64);
+    game_state.add_bullet();
 
     // add observers
     let input_observer = InputObserver;

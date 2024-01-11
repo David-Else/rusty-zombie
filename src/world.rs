@@ -1,4 +1,5 @@
 use crate::{
+    bullets::Bullet,
     events::{GameEvent, Observer},
     hero::Hero,
     random::random_position_around_point,
@@ -18,6 +19,7 @@ pub enum Screen {
 pub struct GameState {
     // fields representing the state of the game
     pub zombies: Vec<Zombie>,
+    pub bullets: Vec<Bullet>,
     pub hero: Hero,
     pub screen_size: Point2d,
     pub current_screen: Screen,
@@ -30,6 +32,7 @@ impl GameState {
     pub fn new(screen_size: Point2d) -> Self {
         Self {
             zombies: Vec::new(), // The compiler knows that this vector is meant to hold elements of type `Zombie` variable
+            bullets: Vec::new(), // The compiler knows that this vector is meant to hold elements of type `Zombie` variable
             hero: Hero::new(Point2d {
                 x: screen_size.x / 2,
                 y: screen_size.y / 2,
@@ -64,9 +67,12 @@ impl GameState {
         // WARNING hack!!! sending a direction when it is not needed
         self.update_zombie(Direction::Up); // Check for collisions or any other periodic logic
 
+        self.update_bullets();
+
         // render the updated game state
         render_screen(
             &self.zombies,
+            &self.bullets,
             &self.hero,
             &self.screen_size,
             &self.current_screen,
@@ -95,6 +101,11 @@ impl GameState {
         }
     }
 
+    pub fn add_bullet(&mut self) {
+        self.bullets
+            .push(Bullet::new(self.hero.position, self.hero.direction));
+    }
+
     pub fn update_hero(&mut self, key: Direction) {
         self.hero.update(key, self.screen_size);
     }
@@ -102,6 +113,11 @@ impl GameState {
     pub fn update_zombie(&mut self, key: Direction) {
         for zombie in &mut self.zombies {
             zombie.update(key, self.screen_size);
+        }
+    }
+    pub fn update_bullets(&mut self) {
+        for bullet in &mut self.bullets {
+            bullet.update(self.screen_size);
         }
     }
 }

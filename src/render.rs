@@ -1,7 +1,7 @@
-use crate::{hero::Hero, types::Point2d, world::Screen, zombie::Zombie};
+use crate::{bullets::Bullet, hero::Hero, types::Point2d, world::Screen, zombie::Zombie};
 use crossterm::{
     cursor::{self, Hide, Show},
-    style::{self, Stylize},
+    style::{self, Print, Stylize},
     terminal::{self, size, EnterAlternateScreen, LeaveAlternateScreen},
     ExecutableCommand, QueueableCommand,
 };
@@ -9,6 +9,7 @@ use std::io::{self, Result, Write};
 
 pub fn render_screen(
     zombies: &[Zombie],
+    bullets: &[Bullet],
     hero: &Hero,
     screen_size: &Point2d,
     current_screen: &Screen,
@@ -19,7 +20,9 @@ pub fn render_screen(
     match current_screen {
         Screen::StartMenu => draw_start_menu(screen_size, &mut stdout)?,
         Screen::GamePlay => {
+            draw_debug(&bullets[0], &mut stdout)?;
             draw_hero(hero, &mut stdout)?;
+            draw_bullet(bullets, &mut stdout)?;
             draw_zombie(zombies, &mut stdout)?;
             draw_borders(screen_size, &mut stdout)?;
         }
@@ -46,6 +49,25 @@ fn draw_hero(hero: &Hero, stdout: &mut io::Stdout) -> Result<()> {
             hero.position.x as u16,
         ))?
         .queue(style::PrintStyledContent("h".red()))?;
+    Ok(())
+}
+
+fn draw_debug(object: &Bullet, stdout: &mut io::Stdout) -> Result<()> {
+    stdout
+        .queue(cursor::MoveTo(10, 1))?
+        .queue(Print(format!("{:?}", object)))?;
+    Ok(())
+}
+
+fn draw_bullet(bullets: &[Bullet], stdout: &mut io::Stdout) -> Result<()> {
+    for bullet in bullets.iter() {
+        stdout
+            .queue(cursor::MoveTo(
+                bullet.position.y as u16,
+                bullet.position.x as u16,
+            ))?
+            .queue(style::PrintStyledContent("b".yellow()))?;
+    }
     Ok(())
 }
 

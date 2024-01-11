@@ -1,7 +1,7 @@
 use crate::{
     movement::{move_down, move_left, move_right, move_up},
     random::{random_direction, random_usize_in_inclusive_range},
-    types::{Direction, Entity, Point2d},
+    types::{Direction, Entity, Movable, Point2d},
 };
 
 #[derive(Debug)]
@@ -21,17 +21,29 @@ impl Entity for Zombie {
         }
     }
 
-    fn update(&mut self, _direction: Direction, screen_size: Point2d) {
+    fn update(&mut self, screen_size: Point2d) {
+        self.move_in_direction(None, screen_size); // Random direction is determined internally
+    }
+}
+
+impl Movable for Zombie {
+    fn move_in_direction(&mut self, _direction: Option<Direction>, screen_size: Point2d) {
         self.tick_counter += 1;
         if self.tick_counter >= self.move_every_n_ticks {
-            self.position = match random_direction() {
-                0 => move_up(self.position),
-                1 => move_down(self.position, screen_size),
-                2 => move_right(self.position, screen_size),
-                3 => move_left(self.position),
-                _ => unreachable!(), // We only generate numbers 0-3, so this should never happen
+            let direction = match random_direction() {
+                0 => Direction::Up,
+                1 => Direction::Down,
+                2 => Direction::Right,
+                3 => Direction::Left,
+                _ => unreachable!(),
             };
-            self.tick_counter = 0; // Reset the counter after the move
+            self.position = match direction {
+                Direction::Up => move_up(self.position),
+                Direction::Down => move_down(self.position, screen_size),
+                Direction::Right => move_right(self.position, screen_size),
+                Direction::Left => move_left(self.position),
+            };
+            self.tick_counter = 0;
         }
     }
 }

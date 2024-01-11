@@ -13,6 +13,10 @@ pub enum Direction {
 }
 
 pub trait Entity {
-    fn update(&mut self, direction: Direction, screen_size: Point2d);
+    fn update(&mut self, screen_size: Point2d);
     fn new(position: Point2d) -> Self;
+}
+
+pub trait Movable {
+    fn move_in_direction(&mut self, direction: Option<Direction>, screen_size: Point2d);
 }

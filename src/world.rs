@@ -106,13 +106,14 @@ impl GameState {
             .push(Bullet::new(self.hero.position, self.hero.direction));
     }
 
-    pub fn update_hero(&mut self, key: Direction) {
-        self.hero.update(key, self.screen_size);
+    pub fn update_hero(&mut self, direction: Direction) {
+        self.hero.direction = direction; // Update the hero's direction based on the key press
+        self.hero.update(self.screen_size); // Then update hero's position based on the new direction
     }
 
     pub fn update_zombie(&mut self, key: Direction) {
         for zombie in &mut self.zombies {
-            zombie.update(key, self.screen_size);
+            zombie.update(self.screen_size);
         }
     }
     pub fn update_bullets(&mut self) {

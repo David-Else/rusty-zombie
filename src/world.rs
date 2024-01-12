@@ -20,6 +20,7 @@ pub enum Screen {
 
 // Methods to manage the game state
 pub trait GameLogic {
+    fn handle_game_input(&mut self, input: GameInput);
     fn update_state(&mut self);
     fn check_collisions(&mut self);
     fn register_observer(&mut self, observer: Box<dyn Observer>);
@@ -53,9 +54,22 @@ impl GameState {
         }
     }
 
-    pub fn handle_game_input(&mut self, input: GameInput) {
+    pub fn add_zombies(&mut self, no: i32) {
+        for _counter in 0..no {
+            self.zombies
+                .push(Zombie::new(random_position_around_point(self.screen_size)));
+        }
+    }
+
+    pub fn add_bullet(&mut self) {
+        self.bullets
+            .push(Bullet::new(self.hero.position, self.hero.direction));
+    }
+}
+
+impl GameLogic for GameState {
+    fn handle_game_input(&mut self, input: GameInput) {
         match (&self.current_screen, input) {
-            // start menu
             (Screen::StartMenu, GameInput::Start) => {
                 self.current_screen = Screen::GamePlay;
             }
@@ -63,7 +77,6 @@ impl GameState {
                 self.is_running = false;
             }
 
-            // gameplay
             (Screen::GamePlay, GameInput::MoveUp) => {
                 self.hero.move_in_direction(Direction::Up, self.screen_size)
             }
@@ -80,29 +93,13 @@ impl GameState {
                 self.add_bullet();
             }
 
-            // game over
             (Screen::GameOver, GameInput::Start) => {
                 self.current_screen = Screen::GamePlay; // For restarting the game
             }
-            // ... handle other game over inputs
             _ => {}
         }
     }
 
-    pub fn add_zombies(&mut self, no: i32) {
-        for _counter in 0..no {
-            self.zombies
-                .push(Zombie::new(random_position_around_point(self.screen_size)));
-        }
-    }
-
-    pub fn add_bullet(&mut self) {
-        self.bullets
-            .push(Bullet::new(self.hero.position, self.hero.direction));
-    }
-}
-
-impl GameLogic for GameState {
     fn check_collisions(&mut self) {
         // Check if the hero collides with any zombies
         if self
@@ -146,6 +143,7 @@ impl GameLogic for GameState {
 
     // Rust's rules prevent you from calling a method with `&mut self` while iterating over a collection of references (`&self.observers`).
     // There's a rule that you cannot have multiple mutable references to the same data
+
     fn notify_observers(&mut self, event: GameEvent) {
         // Temporarily take ownership of observers using std::mem::take,
         // which replaces self.observers with an empty vector

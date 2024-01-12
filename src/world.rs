@@ -78,6 +78,33 @@ impl GameLogic for GameState {
         {
             self.notify_observers(GameEvent::HeroKilled);
         }
+        // To check for bullet-zombie collisions and remove the collided entities, Rust provides several ways to do so while adhering to its strict borrowing rules. Doing this in a simple loop is challenging because modifying the collection (e.g., removing items) while iterating over it is not allowed.
+
+        // A common pattern is to collect indices of items to remove and then remove them after the iteration is complete. However, we must be cautious to not invalidate indices when removing items multiple times from the same vector. A solution is to remove the items in reverse order of their indices.
+
+        // Find all bullet-zombie collisions
+        let mut bullets_to_remove = Vec::new();
+        let mut zombies_to_remove = Vec::new();
+
+        for (bullet_idx, bullet) in self.bullets.iter().enumerate() {
+            for (zombie_idx, zombie) in self.zombies.iter().enumerate() {
+                if bullet.position == zombie.position {
+                    bullets_to_remove.push(bullet_idx);
+                    zombies_to_remove.push(zombie_idx);
+                    break;
+                }
+            }
+        }
+
+        // Remove bullets and zombies that collided. Start from the end to preserve indexing.
+        // `swap_remove` for efficiency removes an element from the vector and replaces it with the last element, maintaining the length of the vector but potentially changing the order of items.
+        for &bullet_idx in bullets_to_remove.iter().rev() {
+            self.bullets.swap_remove(bullet_idx);
+        }
+
+        for &zombie_idx in zombies_to_remove.iter().rev() {
+            self.zombies.swap_remove(zombie_idx);
+        }
     }
 
     fn register_observer(&mut self, observer: Box<dyn Observer>) {

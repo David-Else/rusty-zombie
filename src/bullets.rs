@@ -15,7 +15,7 @@ impl Bullet {
     pub fn new(position: Point2d, direction: Direction) -> Self {
         Self {
             position,
-            ticks_between_moves: 25,
+            ticks_between_moves: 10,
             direction,
             tick_counter: 0,
         }

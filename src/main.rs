@@ -8,11 +8,12 @@ mod types;
 mod world;
 mod zombie;
 use crossterm::event::{self, Event};
-use events::{GameEvent, GameUI, InputObserver};
+use events::{GameUI, InputObserver};
 use render::ConsoleRenderer;
 use render::Renderer;
 use std::error::Error;
 use std::time::{Duration, Instant};
+use world::GameEvent;
 use world::GameLogic;
 use world::GameState;
 

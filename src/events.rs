@@ -1,21 +1,15 @@
 use crate::{
     types::Direction,
-    world::{GameState, Screen},
+    world::{GameEvent, GameState, Screen},
 };
 use crossterm::event::KeyCode;
 
-pub enum GameEvent {
-    HeroKilled,
-    KeyPress(KeyCode),
-    // Other game events...
-}
-
+// Note: observers are mutable and pass in mutable game state, maybe only pass in entites?
+// to make it immutable would be a massive change
 pub trait Observer {
     fn on_notify(&self, event: &GameEvent, game_state: &mut GameState);
 }
 
-// This observer is stateless so it does not need to be mutable, the struct is empty
-// The GameState is mutable and is passed in, maybe we should only pass Entities?
 pub struct GameUI;
 impl Observer for GameUI {
     fn on_notify(&self, event: &GameEvent, game_state: &mut GameState) {

@@ -1,11 +1,18 @@
+use crossterm::event::KeyCode;
+
 use crate::{
     bullets::Bullet,
-    events::{GameEvent, Observer},
+    events::Observer,
     hero::Hero,
     random::random_position_around_point,
     types::{Entity, Point2d},
     zombie::Zombie,
 };
+
+pub enum GameEvent {
+    HeroKilled,
+    KeyPress(KeyCode),
+}
 
 pub enum Screen {
     StartMenu,

@@ -12,9 +12,8 @@ use events::{GameEvent, GameUI, InputObserver};
 use render::Terminal;
 use std::error::Error;
 use std::time::{Duration, Instant};
-use types::Direction;
+use world::GameLogic;
 use world::GameState;
-
 fn main() -> Result<(), Box<dyn Error>> {
     // set a fixed frame duration for each 'tick' of the game loop
     let frame_duration = Duration::from_nanos(1_000_000_000u64 / 60); // 60 FPS
@@ -47,8 +46,15 @@ fn main() -> Result<(), Box<dyn Error>> {
             }
         }
 
-        // Execute the tick function to render/update the game and check physics
-        game_state.tick()?;
+        game_state.update_state();
+        game_state.check_collisions();
+        render::render_screen(
+            &game_state.zombies,
+            &game_state.bullets,
+            &game_state.hero,
+            &game_state.screen_size,
+            &game_state.current_screen,
+        )?;
 
         // Calculate how long the loop iteration took
         let loop_duration = loop_start.elapsed();

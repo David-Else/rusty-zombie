@@ -3,12 +3,9 @@ use crate::{
     events::{GameEvent, Observer},
     hero::Hero,
     random::random_position_around_point,
-    render::render_screen,
     types::{Entity, Point2d},
     zombie::Zombie,
-    Direction,
 };
-use std::io::Result;
 
 pub enum Screen {
     StartMenu,
@@ -16,9 +13,16 @@ pub enum Screen {
     GameOver,
 }
 
+// methods to manage the game state
+pub trait GameLogic {
+    fn update_state(&mut self);
+    fn register_observer(&mut self, observer: Box<dyn Observer>);
+    fn notify_observers(&mut self, event: GameEvent);
+    fn check_collisions(&mut self);
+}
+
 // #[derive(Debug)]
 pub struct GameState {
-    // fields representing the state of the game
     pub zombies: Vec<Zombie>,
     pub bullets: Vec<Bullet>,
     pub hero: Hero,
@@ -29,11 +33,10 @@ pub struct GameState {
 }
 
 impl GameState {
-    // methods to manage the game state
     pub fn new(screen_size: Point2d) -> Self {
         Self {
             zombies: Vec::new(), // The compiler knows that this vector is meant to hold elements of type `Zombie` variable
-            bullets: Vec::new(), // The compiler knows that this vector is meant to hold elements of type `Zombie` variable
+            bullets: Vec::new(),
             hero: Hero::new(Point2d {
                 x: screen_size.x / 2,
                 y: screen_size.y / 2,
@@ -45,12 +48,38 @@ impl GameState {
         }
     }
 
-    pub fn register_observer(&mut self, observer: Box<dyn Observer>) {
+    pub fn add_zombies(&mut self, no: i32) {
+        for _counter in 0..no {
+            self.zombies
+                .push(Zombie::new(random_position_around_point(self.screen_size)));
+        }
+    }
+
+    pub fn add_bullet(&mut self) {
+        self.bullets
+            .push(Bullet::new(self.hero.position, self.hero.direction));
+    }
+}
+
+impl GameLogic for GameState {
+    fn check_collisions(&mut self) {
+        // Check if the hero collides with any zombies
+        if self
+            .zombies
+            .iter()
+            .any(|zombie| zombie.position == self.hero.position)
+        {
+            self.notify_observers(GameEvent::HeroKilled);
+        }
+    }
+
+    fn register_observer(&mut self, observer: Box<dyn Observer>) {
         self.observers.push(observer);
     }
     // Rust's rules prevent you from calling a method with `&mut self` while iterating over a collection of references (`&self.observers`).
     // There's a rule that you cannot have multiple mutable references to the same data
-    pub fn notify_observers(&mut self, event: GameEvent) {
+
+    fn notify_observers(&mut self, event: GameEvent) {
         // Temporarily take ownership of observers using std::mem::take,
         // which replaces self.observers with an empty vector
         // and gives us the original vector to iterate over.
@@ -64,60 +93,13 @@ impl GameState {
         self.observers = observers;
     }
 
-    pub fn tick(&mut self) -> Result<()> {
-        self.update_zombie(); // Check for collisions or any other periodic logic
-        self.update_bullets();
-
-        // render the updated game state
-        render_screen(
-            &self.zombies,
-            &self.bullets,
-            &self.hero,
-            &self.screen_size,
-            &self.current_screen,
-        )?;
-
-        // check for collisions
-        if self.detect_zombie_collision_hero() {
-            self.notify_observers(GameEvent::HeroKilled);
-        }
-
-        Ok(())
-    }
-
-    // The `any` method tests whether any element of the iterator matches a predicate and returns `true` as soon as it finds a match
-    pub fn detect_zombie_collision_hero(&self) -> bool {
-        self.zombies
-            .iter()
-            .any(|zombie| zombie.position == self.hero.position)
-    }
-
-    // adds specified number of zombies to random positions
-    pub fn add_zombies(&mut self, no: i32) {
-        for _counter in 0..no {
-            self.zombies
-                .push(Zombie::new(random_position_around_point(self.screen_size)));
-        }
-    }
-
-    pub fn add_bullet(&mut self) {
-        self.bullets
-            .push(Bullet::new(self.hero.position, self.hero.direction));
-    }
-
-    pub fn update_hero(&mut self, direction: Direction) {
-        self.hero.direction = direction; // Update the hero's direction based on the key press
-        self.hero.update(self.screen_size); // Then update hero's position based on the new direction
-    }
-
-    pub fn update_zombie(&mut self) {
-        for zombie in &mut self.zombies {
-            zombie.update(self.screen_size);
-        }
-    }
-    pub fn update_bullets(&mut self) {
+    fn update_state(&mut self) {
+        // Update bullets and zombies, but hero update is called directly from input handling
         for bullet in &mut self.bullets {
             bullet.update(self.screen_size);
+        }
+        for zombie in &mut self.zombies {
+            zombie.update(self.screen_size);
         }
     }
 }

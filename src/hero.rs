@@ -34,3 +34,10 @@ impl Movable for Hero {
         };
     }
 }
+
+impl Hero {
+    pub fn move_in_direction(&mut self, direction: Direction, screen_size: Point2d) {
+        self.direction = direction;
+        self.update_position(screen_size);
+    }
+}

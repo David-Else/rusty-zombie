@@ -13,12 +13,12 @@ pub enum Screen {
     GameOver,
 }
 
-// methods to manage the game state
+// Methods to manage the game state
 pub trait GameLogic {
     fn update_state(&mut self);
+    fn check_collisions(&mut self);
     fn register_observer(&mut self, observer: Box<dyn Observer>);
     fn notify_observers(&mut self, event: GameEvent);
-    fn check_collisions(&mut self);
 }
 
 // #[derive(Debug)]
@@ -35,7 +35,7 @@ pub struct GameState {
 impl GameState {
     pub fn new(screen_size: Point2d) -> Self {
         Self {
-            zombies: Vec::new(), // The compiler knows that this vector is meant to hold elements of type `Zombie` variable
+            zombies: Vec::new(), // The compiler knows this holds elements of type `Zombie` variable
             bullets: Vec::new(),
             hero: Hero::new(Point2d {
                 x: screen_size.x / 2,
@@ -76,9 +76,9 @@ impl GameLogic for GameState {
     fn register_observer(&mut self, observer: Box<dyn Observer>) {
         self.observers.push(observer);
     }
+
     // Rust's rules prevent you from calling a method with `&mut self` while iterating over a collection of references (`&self.observers`).
     // There's a rule that you cannot have multiple mutable references to the same data
-
     fn notify_observers(&mut self, event: GameEvent) {
         // Temporarily take ownership of observers using std::mem::take,
         // which replaces self.observers with an empty vector

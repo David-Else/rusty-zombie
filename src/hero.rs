@@ -9,6 +9,13 @@ pub struct Hero {
     pub direction: Direction,
 }
 
+impl Hero {
+    pub fn move_in_direction(&mut self, direction: Direction, screen_size: Point2d) {
+        self.direction = direction;
+        self.update_position(screen_size);
+    }
+}
+
 impl Entity for Hero {
     fn new(position: Point2d) -> Self {
         Self {
@@ -32,12 +39,5 @@ impl Movable for Hero {
             Direction::Left => move_left(self.position),
             // No default case needed since we are covering all variants of the Direction enum
         };
-    }
-}
-
-impl Hero {
-    pub fn move_in_direction(&mut self, direction: Direction, screen_size: Point2d) {
-        self.direction = direction;
-        self.update_position(screen_size);
     }
 }

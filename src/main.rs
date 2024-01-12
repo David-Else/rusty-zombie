@@ -9,11 +9,13 @@ mod world;
 mod zombie;
 use crossterm::event::{self, Event};
 use events::{GameEvent, GameUI, InputObserver};
-use render::Terminal;
+use render::ConsoleRenderer;
+use render::Renderer;
 use std::error::Error;
 use std::time::{Duration, Instant};
 use world::GameLogic;
 use world::GameState;
+
 fn main() -> Result<(), Box<dyn Error>> {
     // set a fixed frame duration for each 'tick' of the game loop
     let frame_duration = Duration::from_nanos(1_000_000_000u64 / 60); // 60 FPS
@@ -22,13 +24,11 @@ fn main() -> Result<(), Box<dyn Error>> {
     let input_poll_duration = Duration::from_millis(0);
 
     // setup the terminal and return the resulting stdout and screensize depending on the window dimenstions
-    let mut terminal = Terminal::new().expect("Failed to initialize terminal");
-    let screensize = terminal.screen_size;
+    let mut console_renderer = ConsoleRenderer::new();
 
     // create game state
-    let mut game_state = GameState::new(screensize);
+    let mut game_state = GameState::new(console_renderer.screen_size());
     game_state.add_zombies(64);
-    // game_state.add_bullet();
 
     // add observers
     let input_observer = InputObserver;
@@ -48,11 +48,10 @@ fn main() -> Result<(), Box<dyn Error>> {
 
         game_state.update_state();
         game_state.check_collisions();
-        render::render_screen(
+        console_renderer.render(
             &game_state.zombies,
             &game_state.bullets,
             &game_state.hero,
-            &game_state.screen_size,
             &game_state.current_screen,
         )?;
 
@@ -65,6 +64,6 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
     }
 
-    terminal.cleanup().expect("Failed to cleanup terminal");
+    console_renderer.cleanup();
     Ok(())
 }

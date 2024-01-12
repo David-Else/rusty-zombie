@@ -1,43 +1,98 @@
 use crate::{bullets::Bullet, hero::Hero, types::Point2d, world::Screen, zombie::Zombie};
 use crossterm::{
-    cursor::{self, Hide, Show},
+    cursor::{self},
+    execute,
     style::{self, Stylize},
-    terminal::{self, size, EnterAlternateScreen, LeaveAlternateScreen},
-    ExecutableCommand, QueueableCommand,
+    terminal::{self, size, ClearType},
+    QueueableCommand,
 };
 use std::{
     fmt::Display,
-    io::{self, Result, Write},
+    io::{self, Result, Stdout, Write},
 };
 
-pub fn render_screen(
-    zombies: &[Zombie],
-    bullets: &[Bullet],
-    hero: &Hero,
-    screen_size: &Point2d,
-    current_screen: &Screen,
-) -> Result<()> {
-    let mut stdout = io::stdout(); // Get the standard output stream
-    stdout.execute(terminal::Clear(terminal::ClearType::All))?;
+pub trait Renderer {
+    fn clear(&mut self);
+    fn screen_size(&self) -> Point2d;
+    fn render(
+        &mut self,
+        zombies: &[Zombie],
+        bullets: &[Bullet],
+        hero: &Hero,
+        current_screen: &Screen,
+    ) -> Result<()>;
+    fn cleanup(&mut self);
+}
 
-    match current_screen {
-        Screen::StartMenu => draw_start_menu(screen_size, &mut stdout)?,
-        Screen::GamePlay => {
-            // draw_debug(&bullets[0], &mut stdout)?;
-            draw_hero(hero, &mut stdout)?;
-            for bullet in bullets {
-                draw_entity(&"b", &bullet.position, &mut stdout, style::Color::Yellow)?;
-            }
-            for zombie in zombies {
-                draw_entity(&"z", &zombie.position, &mut stdout, style::Color::Green)?;
-            }
-            draw_borders(screen_size, &mut stdout)?;
+pub struct ConsoleRenderer {
+    stdout: Stdout,
+}
+
+impl ConsoleRenderer {
+    pub fn new() -> Self {
+        let mut stdout = io::stdout();
+        terminal::enable_raw_mode().unwrap();
+        execute!(stdout, terminal::EnterAlternateScreen, cursor::Hide).unwrap();
+        Self { stdout }
+    }
+}
+impl Renderer for ConsoleRenderer {
+    fn screen_size(&self) -> Point2d {
+        let (number_cols, number_rows) = size().unwrap();
+        Point2d {
+            x: number_rows as usize,
+            y: number_cols as usize,
         }
-        Screen::GameOver => draw_game_over(screen_size, &mut stdout)?,
     }
 
-    stdout.flush()?; // draw screen from queued buffer
-    Ok(())
+    fn clear(&mut self) {
+        execute!(self.stdout, terminal::Clear(ClearType::All)).unwrap();
+    }
+
+    fn render(
+        &mut self,
+        zombies: &[Zombie],
+        bullets: &[Bullet],
+        hero: &Hero,
+        current_screen: &Screen,
+    ) -> Result<()> {
+        self.clear();
+
+        match current_screen {
+            Screen::StartMenu => draw_start_menu(&self.screen_size(), &mut self.stdout)?,
+            Screen::GamePlay => {
+                // draw_debug(&bullets[0], &mut self.stdout)?;
+                draw_hero(hero, &mut self.stdout)?;
+                for bullet in bullets {
+                    draw_entity(
+                        &"b",
+                        &bullet.position,
+                        &mut self.stdout,
+                        style::Color::Yellow,
+                    )?;
+                }
+                for zombie in zombies {
+                    draw_entity(
+                        &"z",
+                        &zombie.position,
+                        &mut self.stdout,
+                        style::Color::Green,
+                    )?;
+                }
+                draw_borders(&self.screen_size(), &mut self.stdout)?;
+            }
+            Screen::GameOver => draw_game_over(&self.screen_size(), &mut self.stdout)?,
+        }
+
+        self.stdout.flush()?; // draw screen from queued buffer
+        Ok(())
+    }
+
+    fn cleanup(&mut self) {
+        // Revert any terminal changes, could show cursor, leave alternate screen, etc.
+        execute!(self.stdout, cursor::Show, terminal::LeaveAlternateScreen).unwrap();
+        terminal::disable_raw_mode().unwrap();
+    }
 }
 
 // In the refactored `draw_entity` function, you still have the flexibility to pass in a string literal (which implements `Display`)
@@ -86,13 +141,6 @@ fn draw_hero(hero: &Hero, stdout: &mut io::Stdout) -> Result<()> {
     Ok(())
 }
 
-// fn draw_debug(object: &Bullet, stdout: &mut io::Stdout) -> Result<()> {
-//     stdout
-//         .queue(cursor::MoveTo(10, 1))?
-//         .queue(Print(format!("{:?}", object)))?;
-//     Ok(())
-// }
-
 fn draw_borders(screen_size: &Point2d, stdout: &mut io::Stdout) -> Result<()> {
     for y in 0..screen_size.y {
         for x in 0..screen_size.x {
@@ -104,36 +152,4 @@ fn draw_borders(screen_size: &Point2d, stdout: &mut io::Stdout) -> Result<()> {
         }
     }
     Ok(())
-}
-
-pub struct Terminal {
-    stdout: std::io::Stdout,
-    pub screen_size: Point2d,
-}
-
-impl Terminal {
-    // Constructor method to create a new Terminal instance and set up the terminal
-    pub fn new() -> io::Result<Self> {
-        let mut stdout = io::stdout();
-        terminal::enable_raw_mode()?;
-        stdout.execute(EnterAlternateScreen)?;
-        stdout.execute(Hide)?;
-
-        let (number_cols, number_rows) = size()?;
-        Ok(Self {
-            stdout,
-            screen_size: Point2d {
-                x: number_rows as usize,
-                y: number_cols as usize,
-            },
-        })
-    }
-
-    // Cleanup method to restore the terminal to its previous state
-    pub fn cleanup(&mut self) -> io::Result<()> {
-        self.stdout.execute(Show)?;
-        self.stdout.execute(LeaveAlternateScreen)?;
-        terminal::disable_raw_mode()?;
-        Ok(())
-    }
 }

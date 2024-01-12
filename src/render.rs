@@ -36,6 +36,7 @@ impl ConsoleRenderer {
         Self { stdout }
     }
 }
+
 impl Renderer for ConsoleRenderer {
     fn screen_size(&self) -> Point2d {
         let (number_cols, number_rows) = size().unwrap();
@@ -89,7 +90,7 @@ impl Renderer for ConsoleRenderer {
     }
 
     fn cleanup(&mut self) {
-        // Revert any terminal changes, could show cursor, leave alternate screen, etc.
+        // Revert any terminal changes
         execute!(self.stdout, cursor::Show, terminal::LeaveAlternateScreen).unwrap();
         terminal::disable_raw_mode().unwrap();
     }

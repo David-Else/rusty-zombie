@@ -11,6 +11,7 @@ use std::{
     io::{self, Result, Stdout, Write},
 };
 
+// This could be used for rendering to a GUI, it is decoupled from the console
 pub trait Renderer {
     fn clear(&mut self);
     fn screen_size(&self) -> Point2d;

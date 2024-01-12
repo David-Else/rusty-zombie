@@ -68,38 +68,48 @@ impl GameState {
 }
 
 impl GameLogic for GameState {
+    // inner functions, also known as nested or local functions, do not capture their environment, unlike closures.
     fn handle_game_input(&mut self, input: GameInput) {
-        match (&self.current_screen, input) {
-            (Screen::StartMenu, GameInput::Start) => {
-                self.current_screen = Screen::GamePlay;
+        fn handle_start_menu_input(game_state: &mut GameState, input: GameInput) {
+            match input {
+                GameInput::Start => game_state.current_screen = Screen::GamePlay,
+                GameInput::Exit => game_state.is_running = false,
+                _ => {}
             }
-            (Screen::StartMenu, GameInput::Exit) => {
-                self.is_running = false;
-            }
+        }
 
-            (Screen::GamePlay, GameInput::MoveUp) => {
-                self.hero.move_in_direction(Direction::Up, self.screen_size)
+        fn handle_gameplay_input(game_state: &mut GameState, input: GameInput) {
+            match input {
+                GameInput::MoveUp => game_state
+                    .hero
+                    .move_in_direction(Direction::Up, game_state.screen_size),
+                GameInput::MoveDown => game_state
+                    .hero
+                    .move_in_direction(Direction::Down, game_state.screen_size),
+                GameInput::MoveLeft => game_state
+                    .hero
+                    .move_in_direction(Direction::Left, game_state.screen_size),
+                GameInput::MoveRight => game_state
+                    .hero
+                    .move_in_direction(Direction::Right, game_state.screen_size),
+                GameInput::Fire => game_state.add_bullet(),
+                GameInput::Exit => game_state.is_running = false,
+                _ => {}
             }
-            (Screen::GamePlay, GameInput::MoveDown) => self
-                .hero
-                .move_in_direction(Direction::Down, self.screen_size),
-            (Screen::GamePlay, GameInput::MoveLeft) => self
-                .hero
-                .move_in_direction(Direction::Left, self.screen_size),
-            (Screen::GamePlay, GameInput::MoveRight) => self
-                .hero
-                .move_in_direction(Direction::Right, self.screen_size),
-            (Screen::GamePlay, GameInput::Fire) => {
-                self.add_bullet();
-            }
+        }
 
-            (Screen::GameOver, GameInput::Start) => {
-                self.current_screen = Screen::GamePlay; // For restarting the game
+        fn handle_gameover_input(game_state: &mut GameState, input: GameInput) {
+            match input {
+                GameInput::Start => game_state.current_screen = Screen::GamePlay, // Assumes game state is already reset.
+                GameInput::Exit => game_state.is_running = false,
+                _ => {}
             }
-            (Screen::GameOver, GameInput::Exit) => {
-                self.is_running = false;
-            }
-            _ => {}
+        }
+
+        match &self.current_screen {
+            Screen::StartMenu => handle_start_menu_input(self, input),
+            Screen::GamePlay => handle_gameplay_input(self, input),
+            Screen::GameOver => handle_gameover_input(self, input),
         }
     }
 

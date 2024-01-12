@@ -23,7 +23,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     // set the poll duration to zero for non-blocking input check
     let input_poll_duration = Duration::from_millis(0);
 
-    // setup the terminal and return the resulting stdout and screensize depending on the window dimenstions
+    // setup the terminal
     let mut console_renderer = ConsoleRenderer::new();
 
     // create game state

@@ -60,6 +60,7 @@ impl ConsoleRenderer {
             .queue(style::PrintStyledContent("h".red()))?;
         Ok(())
     }
+
     fn draw_start_menu(&mut self, screen_size: &Point2d) -> Result<()> {
         let message = "Welcome to Zombie Attack, press s to start or q to quit";
         let start_column = (screen_size.y as u16) / 2 - (message.chars().count() as u16) / 2;

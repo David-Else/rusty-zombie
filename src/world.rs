@@ -1,17 +1,15 @@
-use crossterm::event::KeyCode;
-
 use crate::{
     bullets::Bullet,
     events::Observer,
     hero::Hero,
+    input::GameInput,
     random::random_position_around_point,
-    types::{Entity, Point2d},
+    types::{Direction, Entity, Point2d},
     zombie::Zombie,
 };
 
 pub enum GameEvent {
     HeroKilled,
-    KeyPress(KeyCode),
 }
 
 pub enum Screen {
@@ -52,6 +50,42 @@ impl GameState {
             current_screen: Screen::StartMenu,
             is_running: true,
             observers: vec![],
+        }
+    }
+
+    pub fn handle_game_input(&mut self, input: GameInput) {
+        match (&self.current_screen, input) {
+            // start menu
+            (Screen::StartMenu, GameInput::Start) => {
+                self.current_screen = Screen::GamePlay;
+            }
+            (Screen::StartMenu, GameInput::Exit) => {
+                self.is_running = false;
+            }
+
+            // gameplay
+            (Screen::GamePlay, GameInput::MoveUp) => {
+                self.hero.move_in_direction(Direction::Up, self.screen_size)
+            }
+            (Screen::GamePlay, GameInput::MoveDown) => self
+                .hero
+                .move_in_direction(Direction::Down, self.screen_size),
+            (Screen::GamePlay, GameInput::MoveLeft) => self
+                .hero
+                .move_in_direction(Direction::Left, self.screen_size),
+            (Screen::GamePlay, GameInput::MoveRight) => self
+                .hero
+                .move_in_direction(Direction::Right, self.screen_size),
+            (Screen::GamePlay, GameInput::Fire) => {
+                self.add_bullet();
+            }
+
+            // game over
+            (Screen::GameOver, GameInput::Start) => {
+                self.current_screen = Screen::GamePlay; // For restarting the game
+            }
+            // ... handle other game over inputs
+            _ => {}
         }
     }
 

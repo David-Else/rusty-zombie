@@ -96,6 +96,9 @@ impl GameLogic for GameState {
             (Screen::GameOver, GameInput::Start) => {
                 self.current_screen = Screen::GamePlay; // For restarting the game
             }
+            (Screen::GameOver, GameInput::Exit) => {
+                self.is_running = false;
+            }
             _ => {}
         }
     }

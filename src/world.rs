@@ -101,7 +101,6 @@ impl GameLogic for GameState {
         for &bullet_idx in bullets_to_remove.iter().rev() {
             self.bullets.swap_remove(bullet_idx);
         }
-
         for &zombie_idx in zombies_to_remove.iter().rev() {
             self.zombies.swap_remove(zombie_idx);
         }

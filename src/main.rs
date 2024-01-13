@@ -29,20 +29,12 @@ fn main() -> Result<(), Box<dyn Error>> {
     game_state.add_zombies(64);
 
     // add observers
-    // let input_observer = InputObserver;
     game_state.register_observer(Box::new(GameUI));
-    // game_state.register_observer(Box::new(input_observer));
 
     // game loop
     while game_state.is_running {
         let loop_start = Instant::now(); // Mark the beginning of the loop iteration
 
-        // Check for keyboard input
-        // if event::poll(input_poll_duration)? {
-        //     if let Event::Key(key_event) = event::read()? {
-        //         game_state.notify_observers(GameEvent::KeyPress(key_event.code));
-        //     }
-        // }
         if let Some(input) = InputHandler::process_input() {
             game_state.handle_game_input(input);
         }

@@ -1,8 +1,8 @@
 use crate::{bullets::Bullet, hero::Hero, types::Point2d, world::Screen, zombie::Zombie};
 use crossterm::{
-    cursor::{self},
+    cursor::{self, MoveTo},
     execute,
-    style::{self, Stylize},
+    style::{self, PrintStyledContent, Stylize},
     terminal::{self, size, ClearType},
     QueueableCommand,
 };
@@ -47,8 +47,8 @@ impl ConsoleRenderer {
         color: style::Color,
     ) -> Result<()> {
         self.stdout
-            .queue(cursor::MoveTo(position.y as u16, position.x as u16))?
-            .queue(style::PrintStyledContent(entity.to_string().with(color)))?;
+            .queue(MoveTo(position.y as u16, position.x as u16))?
+            .queue(PrintStyledContent(entity.to_string().with(color)))?;
         Ok(())
     }
 
@@ -57,8 +57,8 @@ impl ConsoleRenderer {
         let start_column = (self.screen_size().y as u16) / 2 - (message.chars().count() as u16) / 2;
         let start_row = (self.screen_size().x as u16) / 2;
         self.stdout
-            .queue(cursor::MoveTo(start_column, start_row))?
-            .queue(style::PrintStyledContent(message.green()))?;
+            .queue(MoveTo(start_column, start_row))?
+            .queue(PrintStyledContent(message.green()))?;
         Ok(())
     }
 
@@ -67,8 +67,23 @@ impl ConsoleRenderer {
         let start_column = (self.screen_size().y as u16) / 2 - (message.chars().count() as u16) / 2;
         let start_row = (self.screen_size().x as u16) / 2;
         self.stdout
-            .queue(cursor::MoveTo(start_column, start_row))?
-            .queue(style::PrintStyledContent(message.red()))?;
+            .queue(MoveTo(start_column, start_row))?
+            .queue(PrintStyledContent(message.red()))?;
+        Ok(())
+    }
+
+    fn draw_in_game_stats(&mut self, lives: &i32) -> Result<()> {
+        let message = format!("Lives: {lives}");
+        let start_column = (self.screen_size().y as u16) / 2 - (message.chars().count() as u16) / 2;
+        let start_row = 0;
+
+        self.stdout
+            .queue(MoveTo(start_column, start_row))?
+            .queue(PrintStyledContent(message.grey().reverse()))?;
+        // Is this needed, will other text inherit grey reversed?
+        // .queue(SetAttribute(Attribute::Reset))? // Reset all attributes
+        // .queue(SetForegroundColor(Color::Reset))?; // Reset the foreground color
+
         Ok(())
     }
 
@@ -76,21 +91,19 @@ impl ConsoleRenderer {
         // Drawing the top and bottom borders
         for x in 0..width {
             self.stdout
-                .queue(cursor::MoveTo(x, 0))?
-                .queue(style::PrintStyledContent("█".grey()))?;
-            self.stdout
-                .queue(cursor::MoveTo(x, height - 1))?
-                .queue(style::PrintStyledContent("█".grey()))?;
+                .queue(MoveTo(x, 0))?
+                .queue(PrintStyledContent("█".grey()))?
+                .queue(MoveTo(x, height - 1))?
+                .queue(PrintStyledContent("█".grey()))?;
         }
 
         // Drawing the left and right borders (excluding corners to avoid over-drawing)
         for y in 1..height - 1 {
             self.stdout
-                .queue(cursor::MoveTo(0, y))?
-                .queue(style::PrintStyledContent("█".grey()))?;
-            self.stdout
-                .queue(cursor::MoveTo(width - 1, y))?
-                .queue(style::PrintStyledContent("█".grey()))?;
+                .queue(MoveTo(0, y))?
+                .queue(PrintStyledContent("█".grey()))?
+                .queue(MoveTo(width - 1, y))?
+                .queue(PrintStyledContent("█".grey()))?;
         }
 
         Ok(())
@@ -133,6 +146,7 @@ impl Renderer for ConsoleRenderer {
                 // Get screen size and use as a rectangle to draw the borders
                 let (width, height) = size().unwrap();
                 self.draw_rectangle(width, height)?;
+                self.draw_in_game_stats(&hero.lives)?;
             }
             Screen::GameOver => self.draw_game_over()?,
         }

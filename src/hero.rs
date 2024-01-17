@@ -7,6 +7,7 @@ use crate::{
 pub struct Hero {
     pub position: Point2d,
     pub direction: Direction,
+    pub lives: i32,
 }
 
 impl Hero {
@@ -22,6 +23,7 @@ impl Entity for Hero {
             position,
             // default position needed so bullet can be fired before movement
             direction: Direction::Up,
+            lives: 3,
         }
     }
 

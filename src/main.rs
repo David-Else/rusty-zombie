@@ -46,7 +46,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             &game_state.bullets,
             &game_state.hero,
             &game_state.current_screen,
-        )?;
+        );
 
         // Calculate how long the loop iteration took
         let loop_duration = loop_start.elapsed();

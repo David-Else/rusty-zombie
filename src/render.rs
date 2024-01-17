@@ -21,7 +21,7 @@ pub trait Renderer {
         bullets: &[Bullet],
         hero: &Hero,
         current_screen: &Screen,
-    ) -> Result<()>;
+    );
     fn cleanup(&mut self);
 }
 
@@ -47,66 +47,76 @@ impl ConsoleRenderer {
         color: style::Color,
     ) -> Result<()> {
         self.stdout
-            .queue(MoveTo(position.y as u16, position.x as u16))?
-            .queue(PrintStyledContent(entity.to_string().with(color)))?;
+            .queue(MoveTo(position.y as u16, position.x as u16))
+            .unwrap()
+            .queue(PrintStyledContent(entity.to_string().with(color)))
+            .unwrap();
         Ok(())
     }
 
-    fn draw_start_menu(&mut self) -> Result<()> {
+    fn draw_start_menu(&mut self) {
         let message = "Welcome to Zombie Attack, press s to start or q to quit";
         let start_column = (self.screen_size().y as u16) / 2 - (message.chars().count() as u16) / 2;
         let start_row = (self.screen_size().x as u16) / 2;
         self.stdout
-            .queue(MoveTo(start_column, start_row))?
-            .queue(PrintStyledContent(message.green()))?;
-        Ok(())
+            .queue(MoveTo(start_column, start_row))
+            .unwrap()
+            .queue(PrintStyledContent(message.green()))
+            .unwrap();
     }
 
-    fn draw_game_over(&mut self) -> Result<()> {
+    fn draw_game_over(&mut self) {
         let message = "You are dead! Game Over. s to start again or q to quit";
         let start_column = (self.screen_size().y as u16) / 2 - (message.chars().count() as u16) / 2;
         let start_row = (self.screen_size().x as u16) / 2;
         self.stdout
-            .queue(MoveTo(start_column, start_row))?
-            .queue(PrintStyledContent(message.red()))?;
-        Ok(())
+            .queue(MoveTo(start_column, start_row))
+            .unwrap()
+            .queue(PrintStyledContent(message.red()))
+            .unwrap();
     }
 
-    fn draw_in_game_stats(&mut self, lives: &i32) -> Result<()> {
+    fn draw_in_game_stats(&mut self, lives: &i32) {
         let message = format!("Lives: {lives}");
         let start_column = (self.screen_size().y as u16) / 2 - (message.chars().count() as u16) / 2;
         let start_row = 0;
 
         self.stdout
-            .queue(MoveTo(start_column, start_row))?
-            .queue(PrintStyledContent(message.grey().reverse()))?;
-        // Is this needed, will other text inherit grey reversed?
-        // .queue(SetAttribute(Attribute::Reset))? // Reset all attributes
-        // .queue(SetForegroundColor(Color::Reset))?; // Reset the foreground color
-
-        Ok(())
+            .queue(MoveTo(start_column, start_row))
+            .unwrap()
+            .queue(PrintStyledContent(message.grey().reverse()))
+            .unwrap();
+        // Is this needed, will other text inherit grey reversed.unwrap()
+        // .queue(SetAttribute(Attribute::Reset)).unwrap() // Reset all attributes
+        // .queue(SetForegroundColor(Color::Reset)).unwrap(); // Reset the foreground color
     }
 
-    fn draw_rectangle(&mut self, width: u16, height: u16) -> Result<()> {
+    fn draw_rectangle(&mut self, width: u16, height: u16) {
         // Drawing the top and bottom borders
         for x in 0..width {
             self.stdout
-                .queue(MoveTo(x, 0))?
-                .queue(PrintStyledContent("█".grey()))?
-                .queue(MoveTo(x, height - 1))?
-                .queue(PrintStyledContent("█".grey()))?;
+                .queue(MoveTo(x, 0))
+                .unwrap()
+                .queue(PrintStyledContent("█".grey()))
+                .unwrap()
+                .queue(MoveTo(x, height - 1))
+                .unwrap()
+                .queue(PrintStyledContent("█".grey()))
+                .unwrap();
         }
 
         // Drawing the left and right borders (excluding corners to avoid over-drawing)
         for y in 1..height - 1 {
             self.stdout
-                .queue(MoveTo(0, y))?
-                .queue(PrintStyledContent("█".grey()))?
-                .queue(MoveTo(width - 1, y))?
-                .queue(PrintStyledContent("█".grey()))?;
+                .queue(MoveTo(0, y))
+                .unwrap()
+                .queue(PrintStyledContent("█".grey()))
+                .unwrap()
+                .queue(MoveTo(width - 1, y))
+                .unwrap()
+                .queue(PrintStyledContent("█".grey()))
+                .unwrap();
         }
-
-        Ok(())
     }
 }
 
@@ -129,30 +139,32 @@ impl Renderer for ConsoleRenderer {
         bullets: &[Bullet],
         hero: &Hero,
         current_screen: &Screen,
-    ) -> Result<()> {
+    ) {
         self.clear();
 
         match current_screen {
-            Screen::StartMenu => self.draw_start_menu()?,
+            Screen::StartMenu => self.draw_start_menu(),
             Screen::GamePlay => {
-                // draw_debug(&bullets[0], &mut self.stdout)?;
-                self.draw_entity(&"h", &hero.position, style::Color::Red)?;
+                // draw_debug(&bullets[0], &mut self.stdout).unwrap();
+                self.draw_entity(&"h", &hero.position, style::Color::Red)
+                    .unwrap();
                 for bullet in bullets {
-                    self.draw_entity(&"b", &bullet.position, style::Color::Yellow)?;
+                    self.draw_entity(&"b", &bullet.position, style::Color::Yellow)
+                        .unwrap();
                 }
                 for zombie in zombies {
-                    self.draw_entity(&"z", &zombie.position, style::Color::Green)?;
+                    self.draw_entity(&"z", &zombie.position, style::Color::Green)
+                        .unwrap();
                 }
                 // Get screen size and use as a rectangle to draw the borders
                 let (width, height) = size().unwrap();
-                self.draw_rectangle(width, height)?;
-                self.draw_in_game_stats(&hero.lives)?;
+                self.draw_rectangle(width, height);
+                self.draw_in_game_stats(&hero.lives);
             }
-            Screen::GameOver => self.draw_game_over()?,
+            Screen::GameOver => self.draw_game_over(),
         }
 
-        self.stdout.flush()?; // draw screen from queued buffer
-        Ok(())
+        self.stdout.flush().unwrap(); // draw screen from queued buffer
     }
 
     fn cleanup(&mut self) {

@@ -73,15 +73,26 @@ impl ConsoleRenderer {
     }
 
     fn draw_rectangle(&mut self, width: u16, height: u16) -> Result<()> {
-        for y in 0..width {
-            for x in 0..height {
-                if (y == 0 || y == width - 1) || (x == 0 || x == height - 1) {
-                    self.stdout
-                        .queue(cursor::MoveTo(y, x))?
-                        .queue(style::PrintStyledContent("█".grey()))?;
-                }
-            }
+        // Drawing the top and bottom borders
+        for x in 0..width {
+            self.stdout
+                .queue(cursor::MoveTo(x, 0))?
+                .queue(style::PrintStyledContent("█".grey()))?;
+            self.stdout
+                .queue(cursor::MoveTo(x, height - 1))?
+                .queue(style::PrintStyledContent("█".grey()))?;
         }
+
+        // Drawing the left and right borders (excluding corners to avoid over-drawing)
+        for y in 1..height - 1 {
+            self.stdout
+                .queue(cursor::MoveTo(0, y))?
+                .queue(style::PrintStyledContent("█".grey()))?;
+            self.stdout
+                .queue(cursor::MoveTo(width - 1, y))?
+                .queue(style::PrintStyledContent("█".grey()))?;
+        }
+
         Ok(())
     }
 }

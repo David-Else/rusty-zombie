@@ -52,20 +52,20 @@ impl ConsoleRenderer {
         Ok(())
     }
 
-    fn draw_start_menu(&mut self, screen_size: &Point2d) -> Result<()> {
+    fn draw_start_menu(&mut self) -> Result<()> {
         let message = "Welcome to Zombie Attack, press s to start or q to quit";
-        let start_column = (screen_size.y as u16) / 2 - (message.chars().count() as u16) / 2;
-        let start_row = (screen_size.x as u16) / 2;
+        let start_column = (self.screen_size().y as u16) / 2 - (message.chars().count() as u16) / 2;
+        let start_row = (self.screen_size().x as u16) / 2;
         self.stdout
             .queue(cursor::MoveTo(start_column, start_row))?
             .queue(style::PrintStyledContent(message.green()))?;
         Ok(())
     }
 
-    fn draw_game_over(&mut self, screen_size: &Point2d) -> Result<()> {
+    fn draw_game_over(&mut self) -> Result<()> {
         let message = "You are dead! Game Over. s to start again or q to quit";
-        let start_column = (screen_size.y as u16) / 2 - (message.chars().count() as u16) / 2;
-        let start_row = (screen_size.x as u16) / 2;
+        let start_column = (self.screen_size().y as u16) / 2 - (message.chars().count() as u16) / 2;
+        let start_row = (self.screen_size().x as u16) / 2;
         self.stdout
             .queue(cursor::MoveTo(start_column, start_row))?
             .queue(style::PrintStyledContent(message.red()))?;
@@ -111,7 +111,7 @@ impl Renderer for ConsoleRenderer {
         self.clear();
 
         match current_screen {
-            Screen::StartMenu => self.draw_start_menu(&self.screen_size())?,
+            Screen::StartMenu => self.draw_start_menu()?,
             Screen::GamePlay => {
                 // draw_debug(&bullets[0], &mut self.stdout)?;
                 self.draw_entity(&"h", &hero.position, style::Color::Red)?;
@@ -123,7 +123,7 @@ impl Renderer for ConsoleRenderer {
                 }
                 self.draw_borders()?;
             }
-            Screen::GameOver => self.draw_game_over(&self.screen_size())?,
+            Screen::GameOver => self.draw_game_over()?,
         }
 
         self.stdout.flush()?; // draw screen from queued buffer

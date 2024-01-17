@@ -72,14 +72,12 @@ impl ConsoleRenderer {
         Ok(())
     }
 
-    // TODO maybe draw 4 lines, point to point
-    fn draw_borders(&mut self) -> Result<()> {
-        let screen_size = self.screen_size();
-        for y in 0..self.screen_size().y {
-            for x in 0..screen_size.x {
-                if (y == 0 || y == screen_size.y - 1) || (x == 0 || x == screen_size.x - 1) {
+    fn draw_rectangle(&mut self, width: u16, height: u16) -> Result<()> {
+        for y in 0..width {
+            for x in 0..height {
+                if (y == 0 || y == width - 1) || (x == 0 || x == height - 1) {
                     self.stdout
-                        .queue(cursor::MoveTo(y as u16, x as u16))?
+                        .queue(cursor::MoveTo(y, x))?
                         .queue(style::PrintStyledContent("█".grey()))?;
                 }
             }
@@ -121,7 +119,9 @@ impl Renderer for ConsoleRenderer {
                 for zombie in zombies {
                     self.draw_entity(&"z", &zombie.position, style::Color::Green)?;
                 }
-                self.draw_borders()?;
+                // Get screen size and use as a rectangle to draw the borders
+                let (width, height) = size().unwrap();
+                self.draw_rectangle(width, height)?;
             }
             Screen::GameOver => self.draw_game_over()?,
         }

@@ -52,16 +52,6 @@ impl ConsoleRenderer {
         Ok(())
     }
 
-    fn draw_hero(&mut self, hero: &Hero) -> Result<()> {
-        self.stdout
-            .queue(cursor::MoveTo(
-                hero.position.y as u16,
-                hero.position.x as u16,
-            ))?
-            .queue(style::PrintStyledContent("h".red()))?;
-        Ok(())
-    }
-
     fn draw_start_menu(&mut self, screen_size: &Point2d) -> Result<()> {
         let message = "Welcome to Zombie Attack, press s to start or q to quit";
         let start_column = (screen_size.y as u16) / 2 - (message.chars().count() as u16) / 2;
@@ -82,8 +72,10 @@ impl ConsoleRenderer {
         Ok(())
     }
 
-    fn draw_borders(&mut self, screen_size: &Point2d) -> Result<()> {
-        for y in 0..screen_size.y {
+    // TODO maybe draw 4 lines, point to point
+    fn draw_borders(&mut self) -> Result<()> {
+        let screen_size = self.screen_size();
+        for y in 0..self.screen_size().y {
             for x in 0..screen_size.x {
                 if (y == 0 || y == screen_size.y - 1) || (x == 0 || x == screen_size.x - 1) {
                     self.stdout
@@ -122,14 +114,14 @@ impl Renderer for ConsoleRenderer {
             Screen::StartMenu => self.draw_start_menu(&self.screen_size())?,
             Screen::GamePlay => {
                 // draw_debug(&bullets[0], &mut self.stdout)?;
-                self.draw_hero(hero)?;
+                self.draw_entity(&"h", &hero.position, style::Color::Red)?;
                 for bullet in bullets {
                     self.draw_entity(&"b", &bullet.position, style::Color::Yellow)?;
                 }
                 for zombie in zombies {
                     self.draw_entity(&"z", &zombie.position, style::Color::Green)?;
                 }
-                self.draw_borders(&self.screen_size())?;
+                self.draw_borders()?;
             }
             Screen::GameOver => self.draw_game_over(&self.screen_size())?,
         }

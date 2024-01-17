@@ -34,6 +34,7 @@ pub struct GameState {
     pub hero: Hero,
     pub screen_size: Point2d,
     pub current_screen: Screen,
+    // TODO make it a function to return a bool of another var, or somehow make private. getters/setters?
     pub is_running: bool,
     observers: Vec<Box<dyn Observer>>,
 }

@@ -19,6 +19,7 @@ use world::GameState;
 
 fn main() -> Result<(), Box<dyn Error>> {
     // set a fixed frame duration for each 'tick' of the game loop
+    // 1000 milliseconds / 60 frames = approximately 16.67 milliseconds per frame
     let frame_duration = Duration::from_nanos(1_000_000_000u64 / 60); // 60 FPS
 
     // setup the terminal

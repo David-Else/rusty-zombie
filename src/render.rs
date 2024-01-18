@@ -72,8 +72,8 @@ impl ConsoleRenderer {
         Ok(())
     }
 
-    fn draw_in_game_stats(&mut self, lives: &i32) -> Result<()> {
-        let message = format!("Lives: {lives}");
+    fn draw_in_game_stats(&mut self, lives: &i32, zombies_left: &usize) -> Result<()> {
+        let message = format!("Lives: {lives} Zombies {zombies_left}");
         let start_column = self.screen_size().y / 2 - (message.chars().count() as u16) / 2;
         let start_row = 0;
 
@@ -146,7 +146,7 @@ impl Renderer for ConsoleRenderer {
                 // Get screen size and use as a rectangle to draw the borders
                 let (width, height) = size().unwrap();
                 self.draw_rectangle(width, height)?;
-                self.draw_in_game_stats(&hero.lives)?;
+                self.draw_in_game_stats(&hero.lives, &zombies.len())?;
             }
             Screen::GameOver => self.draw_game_over()?,
         }

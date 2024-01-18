@@ -52,9 +52,13 @@ impl ConsoleRenderer {
         Ok(())
     }
 
-    fn draw_centered_message(&mut self, message: &str) -> Result<()> {
-        let start_column = self.screen_size().y / 2 - (message.chars().count() as u16) / 2;
+    fn center_column_for_line_of_text(&self, message: &str) -> u16 {
+        let screen_width = self.screen_size().y;
+        screen_width / 2 - (message.chars().count() as u16) / 2
+    }
 
+    fn draw_centered_message(&mut self, message: &str) -> Result<()> {
+        let start_column = self.center_column_for_line_of_text(message);
         let color = style::Color::Green;
         self.stdout
             .queue(MoveTo(start_column, self.screen_size().x / 2))?
@@ -72,16 +76,11 @@ impl ConsoleRenderer {
 
     fn draw_in_game_stats(&mut self, lives: &i32, zombies_left: &usize) -> Result<()> {
         let message = format!("Lives: {lives} Zombies {zombies_left}");
-        let start_column = self.screen_size().y / 2 - (message.chars().count() as u16) / 2;
-        let start_row = 0;
+        let start_column = self.center_column_for_line_of_text(&message);
 
         self.stdout
-            .queue(MoveTo(start_column, start_row))?
+            .queue(MoveTo(start_column, 0))?
             .queue(PrintStyledContent(message.grey().reverse()))?;
-        // Is this needed, will other text inherit grey reversed?
-        // .queue(SetAttribute(Attribute::Reset))? // Reset all attributes
-        // .queue(SetForegroundColor(Color::Reset))?; // Reset the foreground color
-
         Ok(())
     }
 

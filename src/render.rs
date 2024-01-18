@@ -52,24 +52,28 @@ impl ConsoleRenderer {
         Ok(())
     }
 
-    fn draw_start_menu(&mut self) -> Result<()> {
-        let message = "Welcome to Zombie Attack, press s to start or q to quit";
+    fn draw_centered_message(&mut self, message: &str, row: u16) -> Result<()> {
         let start_column = self.screen_size().y / 2 - (message.chars().count() as u16) / 2;
-        let start_row = self.screen_size().x / 2;
+
+        let color = style::Color::White;
         self.stdout
-            .queue(MoveTo(start_column, start_row))?
-            .queue(PrintStyledContent(message.green()))?;
+            .queue(MoveTo(start_column, row))?
+            .queue(PrintStyledContent(message.with(color)))?;
         Ok(())
     }
 
+    fn draw_start_menu(&mut self) -> Result<()> {
+        self.draw_centered_message(
+            "Welcome to Zombie Attack, press s to start or q to quit",
+            self.screen_size().x / 2,
+        )
+    }
+
     fn draw_game_over(&mut self) -> Result<()> {
-        let message = "You are dead! Game Over. s to start again or q to quit";
-        let start_column = self.screen_size().y / 2 - (message.chars().count() as u16) / 2;
-        let start_row = self.screen_size().x / 2;
-        self.stdout
-            .queue(MoveTo(start_column, start_row))?
-            .queue(PrintStyledContent(message.red()))?;
-        Ok(())
+        self.draw_centered_message(
+            "You are dead! Game Over. s to start again or q to quit",
+            self.screen_size().x / 2,
+        )
     }
 
     fn draw_in_game_stats(&mut self, lives: &i32, zombies_left: &usize) -> Result<()> {

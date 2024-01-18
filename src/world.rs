@@ -73,6 +73,7 @@ impl GameLogic for GameState {
         // inner functions, also known as nested or local functions, do not capture their environment, unlike closures.
         fn handle_start_menu_input(game_state: &mut GameState, input: GameInput) {
             match input {
+                // TODO error checking with OPTION or result
                 GameInput::Start => game_state.current_screen = Screen::GamePlay,
                 GameInput::Exit => game_state.is_running = false,
                 _ => {}

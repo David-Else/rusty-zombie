@@ -30,6 +30,7 @@ impl Movable for Zombie {
         self.tick_counter += 1;
         if self.tick_counter >= self.ticks_between_moves {
             // Generate a random direction for the zombie to move in
+            // TODO return actual direction not a number
             let direction = match random_direction() {
                 0 => Direction::Up,
                 1 => Direction::Down,

@@ -70,11 +70,11 @@ impl ConsoleRenderer {
 
     fn draw_entity<T: Display>(
         &mut self,
-        entity: &T,
+        entity_char: T,
         position: Point2d,
         color: style::Color,
     ) -> Result<()> {
-        self.queue_styled_content(entity.to_string().with(color), position)
+        self.queue_styled_content(entity_char.to_string().with(color), position)
     }
 
     fn draw_start_menu(&mut self) -> Result<()> {
@@ -146,12 +146,12 @@ impl Renderer for ConsoleRenderer {
             Screen::StartMenu => self.draw_start_menu()?,
             Screen::GamePlay => {
                 // draw_debug(&bullets[0], &mut self.stdout)?;
-                self.draw_entity(&"h", hero.position, style::Color::Red)?;
+                self.draw_entity("h", hero.position, style::Color::Red)?;
                 for bullet in bullets {
-                    self.draw_entity(&"b", bullet.position, style::Color::Yellow)?;
+                    self.draw_entity("b", bullet.position, style::Color::Yellow)?;
                 }
                 for zombie in zombies {
-                    self.draw_entity(&"z", zombie.position, style::Color::Green)?;
+                    self.draw_entity("z", zombie.position, style::Color::Green)?;
                 }
                 // Get screen size and use as a rectangle to draw the borders
                 let (width, height) = size().unwrap();

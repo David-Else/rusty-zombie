@@ -2,7 +2,7 @@ use crate::{bullets::Bullet, hero::Hero, types::Point2d, world::Screen, zombie::
 use crossterm::{
     cursor::{self, MoveTo},
     execute,
-    style::{self, PrintStyledContent, Stylize},
+    style::{self, PrintStyledContent, StyledContent, Stylize},
     terminal::{self, size, ClearType},
     QueueableCommand,
 };
@@ -40,30 +40,42 @@ impl ConsoleRenderer {
     // and apply styling as you did before. But now, you could also use other types that implement the `Display` trait, not just string literals.
     // You pass the desired style as a parameter, which allows you to style any entity dynamically based on game state, entity type, or other conditions.
     // Display types include collections and custom types and enums etc, they can be turned into strings to print
-    fn draw_entity<T: Display>(
-        &mut self,
-        entity: &T,
-        position: &Point2d,
-        color: style::Color,
-    ) -> Result<()> {
-        self.stdout
-            .queue(MoveTo(position.y, position.x))?
-            .queue(PrintStyledContent(entity.to_string().with(color)))?;
-        Ok(())
-    }
-
     fn center_column_for_line_of_text(&self, message: &str) -> u16 {
         let screen_width = self.screen_size().y;
         screen_width / 2 - (message.chars().count() as u16) / 2
     }
 
     fn draw_centered_message(&mut self, message: &str) -> Result<()> {
+        let start_row = self.screen_size().x / 2;
         let start_column = self.center_column_for_line_of_text(message);
         let color = style::Color::Green;
+        self.queue_styled_content(
+            message.with(color),
+            &Point2d {
+                x: start_row,
+                y: start_column,
+            },
+        )
+    }
+
+    fn queue_styled_content<D: Display>(
+        &mut self,
+        content: StyledContent<D>,
+        position: &Point2d,
+    ) -> Result<()> {
         self.stdout
-            .queue(MoveTo(start_column, self.screen_size().x / 2))?
-            .queue(PrintStyledContent(message.with(color)))?;
+            .queue(MoveTo(position.y, position.x))?
+            .queue(PrintStyledContent(content))?;
         Ok(())
+    }
+
+    fn draw_entity<T: Display>(
+        &mut self,
+        entity: &T,
+        position: &Point2d,
+        color: style::Color,
+    ) -> Result<()> {
+        self.queue_styled_content(entity.to_string().with(color), position)
     }
 
     fn draw_start_menu(&mut self) -> Result<()> {
@@ -76,33 +88,35 @@ impl ConsoleRenderer {
 
     fn draw_in_game_stats(&mut self, lives: &i32, zombies_left: &usize) -> Result<()> {
         let message = format!("Lives: {lives} Zombies {zombies_left}");
+        let start_row = 0;
         let start_column = self.center_column_for_line_of_text(&message);
-
-        self.stdout
-            .queue(MoveTo(start_column, 0))?
-            .queue(PrintStyledContent(message.grey().reverse()))?;
-        Ok(())
+        self.queue_styled_content(
+            message.grey().reverse(),
+            &Point2d {
+                x: start_row,
+                y: start_column,
+            },
+        )
     }
 
     fn draw_rectangle(&mut self, width: u16, height: u16) -> Result<()> {
         // Drawing the top and bottom borders
+        let border_char = "█".grey();
         for x in 0..width {
-            self.stdout
-                .queue(MoveTo(x, 0))?
-                .queue(PrintStyledContent("█".grey()))?
-                .queue(MoveTo(x, height - 1))?
-                .queue(PrintStyledContent("█".grey()))?;
+            self.queue_styled_content(border_char, &Point2d { x: 0, y: x })?;
+            self.queue_styled_content(
+                border_char,
+                &Point2d {
+                    x: height - 1,
+                    y: x,
+                },
+            )?;
         }
-
         // Drawing the left and right borders (excluding corners to avoid over-drawing)
         for y in 1..height - 1 {
-            self.stdout
-                .queue(MoveTo(0, y))?
-                .queue(PrintStyledContent("█".grey()))?
-                .queue(MoveTo(width - 1, y))?
-                .queue(PrintStyledContent("█".grey()))?;
+            self.queue_styled_content(border_char, &Point2d { x: y, y: 0 })?;
+            self.queue_styled_content(border_char, &Point2d { x: y, y: width - 1 })?;
         }
-
         Ok(())
     }
 }

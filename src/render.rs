@@ -85,7 +85,7 @@ impl ConsoleRenderer {
         self.draw_centered_message("You are dead! Game Over. s to start again or q to quit")
     }
 
-    fn draw_in_game_stats(&mut self, lives: &i32, zombies_left: &usize) -> Result<()> {
+    fn draw_in_game_stats(&mut self, lives: i32, zombies_left: usize) -> Result<()> {
         let message = format!("Lives: {lives} Zombies {zombies_left}");
         let start_row = 0;
         let start_column = self.center_column_for_line_of_text(&message);
@@ -156,7 +156,7 @@ impl Renderer for ConsoleRenderer {
                 // Get screen size and use as a rectangle to draw the borders
                 let (width, height) = size().unwrap();
                 self.draw_rectangle(width, height)?;
-                self.draw_in_game_stats(&hero.lives, &zombies.len())?;
+                self.draw_in_game_stats(hero.lives, zombies.len())?;
             }
             Screen::GameOver => self.draw_game_over()?,
         }

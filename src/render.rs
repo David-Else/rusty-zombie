@@ -50,7 +50,7 @@ impl ConsoleRenderer {
         let color = style::Color::Green;
         self.queue_styled_content(
             message.with(color),
-            &Point2d {
+            Point2d {
                 x: start_row,
                 y: self.center_column_for_line_of_text(message),
             },
@@ -60,7 +60,7 @@ impl ConsoleRenderer {
     fn queue_styled_content<D: Display>(
         &mut self,
         content: StyledContent<D>,
-        position: &Point2d,
+        position: Point2d,
     ) -> Result<()> {
         self.stdout
             .queue(MoveTo(position.y, position.x))?
@@ -71,7 +71,7 @@ impl ConsoleRenderer {
     fn draw_entity<T: Display>(
         &mut self,
         entity: &T,
-        position: &Point2d,
+        position: Point2d,
         color: style::Color,
     ) -> Result<()> {
         self.queue_styled_content(entity.to_string().with(color), position)
@@ -91,7 +91,7 @@ impl ConsoleRenderer {
         let start_column = self.center_column_for_line_of_text(&message);
         self.queue_styled_content(
             message.grey().reverse(),
-            &Point2d {
+            Point2d {
                 x: start_row,
                 y: start_column,
             },
@@ -102,10 +102,10 @@ impl ConsoleRenderer {
         // Drawing the top and bottom borders
         let border_char = "█".grey();
         for x in 0..width {
-            self.queue_styled_content(border_char, &Point2d { x: 0, y: x })?;
+            self.queue_styled_content(border_char, Point2d { x: 0, y: x })?;
             self.queue_styled_content(
                 border_char,
-                &Point2d {
+                Point2d {
                     x: height - 1,
                     y: x,
                 },
@@ -113,8 +113,8 @@ impl ConsoleRenderer {
         }
         // Drawing the left and right borders (excluding corners to avoid over-drawing)
         for y in 1..height - 1 {
-            self.queue_styled_content(border_char, &Point2d { x: y, y: 0 })?;
-            self.queue_styled_content(border_char, &Point2d { x: y, y: width - 1 })?;
+            self.queue_styled_content(border_char, Point2d { x: y, y: 0 })?;
+            self.queue_styled_content(border_char, Point2d { x: y, y: width - 1 })?;
         }
         Ok(())
     }
@@ -146,12 +146,12 @@ impl Renderer for ConsoleRenderer {
             Screen::StartMenu => self.draw_start_menu()?,
             Screen::GamePlay => {
                 // draw_debug(&bullets[0], &mut self.stdout)?;
-                self.draw_entity(&"h", &hero.position, style::Color::Red)?;
+                self.draw_entity(&"h", hero.position, style::Color::Red)?;
                 for bullet in bullets {
-                    self.draw_entity(&"b", &bullet.position, style::Color::Yellow)?;
+                    self.draw_entity(&"b", bullet.position, style::Color::Yellow)?;
                 }
                 for zombie in zombies {
-                    self.draw_entity(&"z", &zombie.position, style::Color::Green)?;
+                    self.draw_entity(&"z", zombie.position, style::Color::Green)?;
                 }
                 // Get screen size and use as a rectangle to draw the borders
                 let (width, height) = size().unwrap();

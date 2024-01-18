@@ -1,12 +1,18 @@
-use crate::types::Point2d;
+use crate::types::{Direction, Point2d};
 use rand::{thread_rng, Rng};
 
 pub fn random_u16_in_inclusive_range(min: u16, max: u16) -> u16 {
     thread_rng().gen_range(min..=max)
 }
 
-pub fn random_direction() -> u16 {
-    random_u16_in_inclusive_range(0, 3)
+pub fn random_direction() -> Direction {
+    match random_u16_in_inclusive_range(0, 3) {
+        0 => Direction::Up,
+        1 => Direction::Down,
+        2 => Direction::Right,
+        3 => Direction::Left,
+        _ => unreachable!(),
+    }
 }
 
 pub fn random_position_around_point(screen_size: Point2d) -> Point2d {

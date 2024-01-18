@@ -1,6 +1,6 @@
 use crate::{
     movement::{move_down, move_left, move_right, move_up},
-    random::{random_direction, random_usize_in_inclusive_range},
+    random::{random_direction, random_u16_in_inclusive_range},
     types::{Direction, Entity, Movable, Point2d},
 };
 
@@ -15,7 +15,7 @@ impl Entity for Zombie {
     fn new(position: Point2d) -> Self {
         Self {
             position,
-            ticks_between_moves: random_usize_in_inclusive_range(40, 50),
+            ticks_between_moves: random_u16_in_inclusive_range(40, 50) as usize,
             tick_counter: 0,
         }
     }

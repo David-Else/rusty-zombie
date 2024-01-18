@@ -47,15 +47,15 @@ impl ConsoleRenderer {
         color: style::Color,
     ) -> Result<()> {
         self.stdout
-            .queue(MoveTo(position.y as u16, position.x as u16))?
+            .queue(MoveTo(position.y, position.x))?
             .queue(PrintStyledContent(entity.to_string().with(color)))?;
         Ok(())
     }
 
     fn draw_start_menu(&mut self) -> Result<()> {
         let message = "Welcome to Zombie Attack, press s to start or q to quit";
-        let start_column = (self.screen_size().y as u16) / 2 - (message.chars().count() as u16) / 2;
-        let start_row = (self.screen_size().x as u16) / 2;
+        let start_column = self.screen_size().y / 2 - (message.chars().count() as u16) / 2;
+        let start_row = self.screen_size().x / 2;
         self.stdout
             .queue(MoveTo(start_column, start_row))?
             .queue(PrintStyledContent(message.green()))?;
@@ -64,8 +64,8 @@ impl ConsoleRenderer {
 
     fn draw_game_over(&mut self) -> Result<()> {
         let message = "You are dead! Game Over. s to start again or q to quit";
-        let start_column = (self.screen_size().y as u16) / 2 - (message.chars().count() as u16) / 2;
-        let start_row = (self.screen_size().x as u16) / 2;
+        let start_column = self.screen_size().y / 2 - (message.chars().count() as u16) / 2;
+        let start_row = self.screen_size().x / 2;
         self.stdout
             .queue(MoveTo(start_column, start_row))?
             .queue(PrintStyledContent(message.red()))?;
@@ -74,7 +74,7 @@ impl ConsoleRenderer {
 
     fn draw_in_game_stats(&mut self, lives: &i32) -> Result<()> {
         let message = format!("Lives: {lives}");
-        let start_column = (self.screen_size().y as u16) / 2 - (message.chars().count() as u16) / 2;
+        let start_column = self.screen_size().y / 2 - (message.chars().count() as u16) / 2;
         let start_row = 0;
 
         self.stdout
@@ -114,8 +114,8 @@ impl Renderer for ConsoleRenderer {
     fn screen_size(&self) -> Point2d {
         let (number_cols, number_rows) = size().unwrap();
         Point2d {
-            x: number_rows as usize,
-            y: number_cols as usize,
+            x: number_rows,
+            y: number_cols,
         }
     }
 

@@ -1,7 +1,7 @@
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Point2d {
-    pub x: usize,
-    pub y: usize,
+    pub x: u16,
+    pub y: u16,
 }
 
 #[derive(Debug, Clone, Copy)]

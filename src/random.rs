@@ -1,12 +1,12 @@
 use crate::types::Point2d;
 use rand::{thread_rng, Rng};
 
-pub fn random_usize_in_inclusive_range(min: usize, max: usize) -> usize {
+pub fn random_u16_in_inclusive_range(min: u16, max: u16) -> u16 {
     thread_rng().gen_range(min..=max)
 }
 
-pub fn random_direction() -> usize {
-    random_usize_in_inclusive_range(0, 3)
+pub fn random_direction() -> u16 {
+    random_u16_in_inclusive_range(0, 3)
 }
 
 pub fn random_position_around_point(screen_size: Point2d) -> Point2d {
@@ -15,16 +15,22 @@ pub fn random_position_around_point(screen_size: Point2d) -> Point2d {
         y: screen_size.y / 2,
     };
 
-    let minimum_r = screen_size.x / 2;
+    let minimum_r = (screen_size.x / 2) as f64;
 
-    let rn: f64 = thread_rng().gen(); //.gen_range(0..1);
-    let theta = rn * (2.0 * std::f32::consts::PI) as f64;
+    let rn: f64 = thread_rng().gen(); // Generates a float between 0.0 and 1.0.
+    let theta = rn * 2.0 * std::f64::consts::PI; // Full circle in radians.
 
-    let r: f64 =
-        (thread_rng().gen_range((((minimum_r as f64) / 2.0).floor()) as usize..minimum_r)) as f64; // * (variation_in_r + minimum_r) as f64;
+    // Generate a random radius within the screen bounds as a float.
+    let r = thread_rng().gen_range(minimum_r / 2.0..=minimum_r);
 
-    Point2d {
-        x: (((theta.cos() * r).floor() as isize) + (mid_point.x) as isize) as usize,
-        y: (((theta.sin() * r).floor() as isize) + (mid_point.y) as isize) as usize,
-    }
+    // Calculate the components offset by the random angle and radius, then offset by the mid-point.
+    // Ensure the results fit within the u16 range using max/min bounds and clamp if necessary.
+    let x_component = (theta.cos() * r).floor() as i64;
+    let y_component = (theta.sin() * r).floor() as i64;
+
+    // Adding components to the mid_point, ensuring the result is within the bounds for u16.
+    let x = (mid_point.x as i64 + x_component).clamp(0, u16::MAX as i64) as u16;
+    let y = (mid_point.y as i64 + y_component).clamp(0, u16::MAX as i64) as u16;
+
+    Point2d { x, y }
 }

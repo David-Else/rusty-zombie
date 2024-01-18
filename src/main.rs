@@ -20,7 +20,9 @@ use world::GameState;
 fn main() -> Result<(), Box<dyn Error>> {
     // set a fixed frame duration for each 'tick' of the game loop
     // 1000 milliseconds / 60 frames = approximately 16.67 milliseconds per frame
-    let frame_duration = Duration::from_nanos(1_000_000_000u64 / 60); // 60 FPS
+    const FPS_TARGET: u64 = 60;
+    const NANOS_PER_SECOND: u64 = 1_000_000_000;
+    const FRAME_DURATION: Duration = Duration::from_nanos(NANOS_PER_SECOND / FPS_TARGET);
 
     // setup the terminal
     let mut console_renderer = ConsoleRenderer::new();
@@ -51,9 +53,13 @@ fn main() -> Result<(), Box<dyn Error>> {
         // Calculate how long the loop iteration took
         let loop_duration = loop_start.elapsed();
 
+        if loop_duration > FRAME_DURATION {
+            println!("Warning: Frame rate dropped below {} FPS.", FPS_TARGET);
+        }
+
         // If the loop finished faster than the frame duration, sleep the remaining time
-        if loop_duration < frame_duration {
-            std::thread::sleep(frame_duration - loop_duration);
+        if loop_duration < FRAME_DURATION {
+            std::thread::sleep(FRAME_DURATION - loop_duration);
         }
     }
 

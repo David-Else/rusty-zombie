@@ -77,14 +77,6 @@ impl ConsoleRenderer {
         self.queue_styled_content(entity_char.to_string().with(color), position)
     }
 
-    fn draw_start_menu(&mut self) -> Result<()> {
-        self.draw_centered_message("Welcome to Zombie Attack, press s to start or q to quit")
-    }
-
-    fn draw_game_over(&mut self) -> Result<()> {
-        self.draw_centered_message("You are dead! Game Over. s to start again or q to quit")
-    }
-
     fn draw_in_game_stats(&mut self, lives: i32, zombies_left: usize) -> Result<()> {
         let message = format!("Lives: {lives} Zombies {zombies_left}");
         let start_row = 0;
@@ -143,7 +135,8 @@ impl Renderer for ConsoleRenderer {
         self.clear();
 
         match current_screen {
-            Screen::StartMenu => self.draw_start_menu()?,
+            Screen::StartMenu => self
+                .draw_centered_message("Welcome to Zombie Attack, press s to start or q to quit")?,
             Screen::GamePlay => {
                 // draw_debug(&bullets[0], &mut self.stdout)?;
                 self.draw_entity("h", hero.position, style::Color::Red)?;
@@ -158,7 +151,8 @@ impl Renderer for ConsoleRenderer {
                 self.draw_rectangle(width, height)?;
                 self.draw_in_game_stats(hero.lives, zombies.len())?;
             }
-            Screen::GameOver => self.draw_game_over()?,
+            Screen::GameOver => self
+                .draw_centered_message("You are dead! Game Over. s to start again or q to quit")?,
         }
 
         self.stdout.flush()?; // draw screen from queued buffer

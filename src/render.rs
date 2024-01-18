@@ -47,13 +47,12 @@ impl ConsoleRenderer {
 
     fn draw_centered_message(&mut self, message: &str) -> Result<()> {
         let start_row = self.screen_size().x / 2;
-        let start_column = self.center_column_for_line_of_text(message);
         let color = style::Color::Green;
         self.queue_styled_content(
             message.with(color),
             &Point2d {
                 x: start_row,
-                y: start_column,
+                y: self.center_column_for_line_of_text(message),
             },
         )
     }

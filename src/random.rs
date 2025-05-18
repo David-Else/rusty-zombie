@@ -1,8 +1,8 @@
 use crate::types::{Direction, Point2d};
-use rand::{thread_rng, Rng};
+use rand::{Rng, rng};
 
 pub fn random_u16_in_inclusive_range(min: u16, max: u16) -> u16 {
-    thread_rng().gen_range(min..=max)
+    rng().random_range(min..=max)
 }
 
 pub fn random_direction() -> Direction {
@@ -23,11 +23,11 @@ pub fn random_position_around_point(screen_size: Point2d) -> Point2d {
 
     let minimum_r = (screen_size.x / 2) as f64;
 
-    let rn: f64 = thread_rng().gen(); // Generates a float between 0.0 and 1.0.
+    let rn: f64 = rng().random(); // Generates a float between 0.0 and 1.0.
     let theta = rn * 2.0 * std::f64::consts::PI; // Full circle in radians.
 
     // Generate a random radius within the screen bounds as a float.
-    let r = thread_rng().gen_range(minimum_r / 2.0..=minimum_r);
+    let r = rng().random_range(minimum_r / 2.0..=minimum_r);
 
     // Calculate the components offset by the random angle and radius, then offset by the mid-point.
     // Ensure the results fit within the u16 range using max/min bounds and clamp if necessary.

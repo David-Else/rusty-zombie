@@ -54,7 +54,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         let loop_duration = loop_start.elapsed();
 
         if loop_duration > FRAME_DURATION {
-            println!("Warning: Frame rate dropped below {} FPS.", FPS_TARGET);
+            println!("Warning: Frame rate dropped below {FPS_TARGET} FPS.");
         }
 
         // If the loop finished faster than the frame duration, sleep the remaining time
